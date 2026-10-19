@@ -466,6 +466,8 @@ export interface Investigation {
   summary?: string;
   /**
    * The root or apparent causes identified, one per entry, written as system causes rather than individual blame.
+   *
+   * Items: One cause.
    */
   causes?: string[];
   /**

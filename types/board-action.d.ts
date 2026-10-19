@@ -2,6 +2,8 @@
 
 /**
  * Ids of the item's files in attachments (staff report, draft resolution, presentation).
+ *
+ * Items: A stable identifier for a record or for an item inside one (a finding, a motion, an attachment). Letters, digits and . _ : - only, starting with a letter or digit, up to 128 characters, so it is safe in URLs, file names and spreadsheet cells without escaping. Ids inside a record (for example `f1` for a finding) need only be unique within their list, and the validator checks that. Ids of whole records should be unique within the system that issues them; use a UUID or ULID when records from several systems will be combined.
  */
 export type AttachmentIds = string[];
 

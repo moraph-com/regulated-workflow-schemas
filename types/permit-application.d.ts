@@ -5,11 +5,21 @@
  */
 export type Party = {
   [k: string]: unknown;
+} & {
+  /**
+   * owner (the property owner); applicant (where the applicant has no other role); contractor; architect; engineer; agent (a permit expediter or other representative); tenant; or other.
+   */
+  role: "owner" | "applicant" | "contractor" | "architect" | "engineer" | "agent" | "tenant" | "other";
+  person?: Person;
+  organization?: Organization;
+  mailingAddress?: PostalAddress;
+  license?: License;
 };
 /**
  * A person or organization on the application, in a role. Give a person, an organization, or both (a named contact at a firm). Names and mailing addresses of individuals, such as homeowners, are personal data even where permit records are public.
  */
-export type Party1 = {
+export type Party1 = Party2 & Party3;
+export type Party2 = {
   [k: string]: unknown;
 };
 /**
@@ -17,6 +27,25 @@ export type Party1 = {
  */
 export type Site = {
   [k: string]: unknown;
+} & {
+  /**
+   * The identifier of the land parcel used for tax assessment: the assessor's parcel number (APN), parcel identification number (PIN), tax id or equivalent (BLDS PIN). Written as the assessor writes it.
+   */
+  parcelNumber?: string;
+  address?: PostalAddress1;
+  location?: GeographicPoint;
+  /**
+   * The parcel's zoning designation, as the jurisdiction writes it.
+   */
+  zoning?: string;
+  /**
+   * The flood hazard zone, if the site is mapped, as shown on the flood map (in the US, the FEMA Flood Insurance Rate Map zone).
+   */
+  floodZone?: string;
+  /**
+   * Whether the site is in a designated historic district, which usually adds a historic preservation review.
+   */
+  historicDistrict?: boolean;
 };
 
 /**
@@ -221,6 +250,164 @@ export interface Money {
   amount: string;
 }
 /**
+ * The person.
+ */
+export interface Person {
+  /**
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
+   */
+  id?: string;
+  /**
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
+   */
+  name: string;
+  /**
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
+   */
+  title?: string;
+  /**
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
+   */
+  organization?: string;
+  /**
+   * Work email address, when readers need to contact the person.
+   */
+  email?: string;
+  /**
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
+   */
+  phone?: string;
+}
+/**
+ * The organization (BLDS ContractorCompanyName, for a contractor).
+ */
+export interface Organization {
+  /**
+   * The organization's id in the system the reference comes from (a vendor master, a contractor registry).
+   */
+  id?: string;
+  /**
+   * The name the organization is known by and trades under. Use legalName as well when the registered name differs.
+   */
+  name: string;
+  /**
+   * The registered legal name, when it differs from the name (for example Ledgerline Payroll Services, Inc. for Ledgerline Payroll). Contracts and registry lookups use this name.
+   */
+  legalName?: string;
+  /**
+   * Registry identifiers for the organization, such as a Legal Entity Identifier (LEI), US Employer Identification Number (EIN), Unique Entity ID (UEI, used in US federal awards), DUNS number or national company number. Prefer an LEI where one exists: it is global and its reference data is public.
+   */
+  identifiers?: ExternalIdentifier[];
+  /**
+   * The country where the organization is established or registered.
+   */
+  country?: string;
+  /**
+   * The organization's public website, as an absolute URI including https://.
+   */
+  website?: string;
+}
+/**
+ * Where to send notices to the party, when it differs from the site.
+ */
+export interface PostalAddress {
+  /**
+   * The street part of the address, one line per entry, in the order the local postal service expects (most specific first in most countries). Include building, unit, street and any district line here.
+   *
+   * @minItems 1
+   * @maxItems 4
+   */
+  lines: [string] | [string, string] | [string, string, string] | [string, string, string, string];
+  /**
+   * City, town or village.
+   */
+  locality?: string;
+  /**
+   * State, province, county or prefecture as written locally (OR, Ontario, Kent). Use the jurisdiction's subdivision code where you need a code.
+   */
+  region?: string;
+  /**
+   * ZIP or postal code as written locally, including any space or hyphen.
+   */
+  postalCode?: string;
+  /**
+   * The country of the address.
+   */
+  country: string;
+}
+/**
+ * A professional or contractor license the party holds, which many jurisdictions verify before issuing a permit.
+ */
+export interface License {
+  /**
+   * The license number (BLDS ContractorLicNum, for a contractor).
+   */
+  number: string;
+  /**
+   * The license class.
+   */
+  type?: string;
+  /**
+   * The licensing board or agency (BLDS ContractorStateLic records the licensing state).
+   */
+  issuer?: string;
+  /**
+   * When the license expires.
+   */
+  expiresOn?: string;
+}
+export interface Party3 {
+  /**
+   * owner (the property owner); applicant (where the applicant has no other role); contractor; architect; engineer; agent (a permit expediter or other representative); tenant; or other.
+   */
+  role: "owner" | "applicant" | "contractor" | "architect" | "engineer" | "agent" | "tenant" | "other";
+  person?: Person;
+  organization?: Organization;
+  mailingAddress?: PostalAddress;
+  license?: License;
+}
+/**
+ * The site's street address (BLDS OriginalAddress1, OriginalCity, OriginalState, OriginalZip).
+ */
+export interface PostalAddress1 {
+  /**
+   * The street part of the address, one line per entry, in the order the local postal service expects (most specific first in most countries). Include building, unit, street and any district line here.
+   *
+   * @minItems 1
+   * @maxItems 4
+   */
+  lines: [string] | [string, string] | [string, string, string] | [string, string, string, string];
+  /**
+   * City, town or village.
+   */
+  locality?: string;
+  /**
+   * State, province, county or prefecture as written locally (OR, Ontario, Kent). Use the jurisdiction's subdivision code where you need a code.
+   */
+  region?: string;
+  /**
+   * ZIP or postal code as written locally, including any space or hyphen.
+   */
+  postalCode?: string;
+  /**
+   * The country of the address.
+   */
+  country: string;
+}
+/**
+ * The site's coordinates (BLDS Latitude and Longitude), for mapping and for sites without an address.
+ */
+export interface GeographicPoint {
+  /**
+   * Degrees north (positive) or south (negative) of the equator, -90 to 90.
+   */
+  latitude: number;
+  /**
+   * Degrees east (positive) or west (negative) of the prime meridian, -180 to 180.
+   */
+  longitude: number;
+}
+/**
  * Facts about the building or structure, for building permits. Leave out for permits that don't involve a building.
  */
 export interface Building {
@@ -353,7 +540,7 @@ export interface PlanReview {
    * The review cycle, starting at 1. Each resubmission in response to corrections starts a new cycle.
    */
   cycle: number;
-  reviewer?: Person;
+  reviewer?: Person1;
   /**
    * When the review started.
    */
@@ -374,7 +561,7 @@ export interface PlanReview {
 /**
  * Who reviewed (a plans examiner, planner or engineer).
  */
-export interface Person {
+export interface Person1 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
@@ -491,7 +678,7 @@ export interface Inspection {
    * When the inspection is scheduled.
    */
   scheduledFor?: string;
-  inspector?: Person1;
+  inspector?: Person2;
   /**
    * scheduled (not yet done); passed; failed (correction and re-inspection needed); partial (part of the work approved); cancelled; or no-access (the inspector couldn't get to the work).
    */
@@ -508,7 +695,7 @@ export interface Inspection {
 /**
  * Who inspected.
  */
-export interface Person1 {
+export interface Person2 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
@@ -546,13 +733,15 @@ export interface Decision {
    * When the decision was made. For an issued permit, BLDS IssuedDate is the date part in the jurisdiction's time zone.
    */
   decidedAt: string;
-  decidedBy?: Person2;
+  decidedBy?: Person3;
   /**
    * The number of the issued permit (BLDS PermitNum). Required when the outcome is issued.
    */
   permitNumber?: string;
   /**
    * Conditions of approval, each as stated on the permit.
+   *
+   * Items: One condition.
    */
   conditions?: string[];
   /**
@@ -571,7 +760,7 @@ export interface Decision {
 /**
  * Who decided, usually by title (Building Official, Planning Director).
  */
-export interface Person2 {
+export interface Person3 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
@@ -609,7 +798,7 @@ export interface StatusChange {
    * When the status changed.
    */
   at: string;
-  by?: Person3;
+  by?: Person4;
   /**
    * Why the status changed, in a sentence, especially for changes a reader wouldn't expect (a reopened review, a withdrawn item).
    */
@@ -618,7 +807,7 @@ export interface StatusChange {
 /**
  * Who changed the status. Leave out where naming the person would break a promise of anonymity (see patient-safety-incident).
  */
-export interface Person3 {
+export interface Person4 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
@@ -689,7 +878,7 @@ export interface AuditEntry {
    * When the action happened.
    */
   at: string;
-  actor: Person4;
+  actor: Person5;
   /**
    * What happened, as a short lower-case verb phrase. Use the same vocabulary across records so trails can be filtered; created, field-changed, attachment-added, approved, exported and viewed cover most systems.
    */
@@ -718,7 +907,7 @@ export interface AuditEntry {
 /**
  * Who acted: a person, or a system account named as a person reference (for example name: Nightly import).
  */
-export interface Person4 {
+export interface Person5 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */

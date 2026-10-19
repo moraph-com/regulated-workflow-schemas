@@ -2,14 +2,14 @@
 
 /**
  * Ids of the evidence files in the record's attachments.
+ *
+ * Items: A stable identifier for a record or for an item inside one (a finding, a motion, an attachment). Letters, digits and . _ : - only, starting with a letter or digit, up to 128 characters, so it is safe in URLs, file names and spreadsheet cells without escaping. Ids inside a record (for example `f1` for a finding) need only be unique within their list, and the validator checks that. Ids of whole records should be unique within the system that issues them; use a UUID or ULID when records from several systems will be combined.
  */
 export type AttachmentIds = string[];
 /**
  * An issue found during the review: what it is, how severe, what raised it, and whether it is being fixed or its risk accepted.
  */
-export type Finding = {
-  [k: string]: unknown;
-};
+export type Finding = Finding1;
 
 /**
  * One review of a third-party relationship: what the third party provides, what data and access it has, how critical the relationship is, inherent and residual risk, the assessments performed, findings and their remediation or acceptance, the review cadence, and the decision and its approvals. The structure follows the third-party risk management life cycle in the US banking agencies' Interagency Guidance on Third-Party Relationships: Risk Management (OCC Bulletin 2023-17), with supply chain concepts from NIST SP 800-161 Rev. 1 and ISO/IEC 27036. It records a review; it doesn't prescribe how to tier vendors or score risk, and using it does not by itself satisfy any of that guidance.
@@ -282,6 +282,8 @@ export interface Access {
   hostsData?: boolean;
   /**
    * Countries where the third party stores or processes the data, including through subcontractors. Matters for data transfer law, government access and resilience planning.
+   *
+   * Items: ISO 3166-1 alpha-2 country code in upper case, for example US, GB, DE or IN. Codes are used instead of names so records sort, filter and compare across languages. The pattern checks the shape only; it doesn't reject unassigned codes.
    */
   dataLocations?: string[];
   /**
@@ -458,6 +460,174 @@ export interface Person1 {
    */
   phone?: string;
 }
+export interface Finding1 {
+  /**
+   * A stable identifier for a record or for an item inside one (a finding, a motion, an attachment). Letters, digits and . _ : - only, starting with a letter or digit, up to 128 characters, so it is safe in URLs, file names and spreadsheet cells without escaping. Ids inside a record (for example `f1` for a finding) need only be unique within their list, and the validator checks that. Ids of whole records should be unique within the system that issues them; use a UUID or ULID when records from several systems will be combined.
+   */
+  id: string;
+  /**
+   * The issue in one line.
+   */
+  title: string;
+  /**
+   * What was found and why it matters.
+   */
+  description?: string;
+  /**
+   * The risk domain the finding falls in.
+   */
+  domain?:
+    | "information-security"
+    | "privacy"
+    | "operational-resilience"
+    | "business-continuity"
+    | "financial"
+    | "compliance"
+    | "legal"
+    | "reputational"
+    | "concentration"
+    | "strategic"
+    | "geographic"
+    | "environmental-social";
+  /**
+   * low, medium, high or critical, on the organization's issue-rating scale.
+   */
+  severity: "low" | "medium" | "high" | "critical";
+  /**
+   * A stable identifier for a record or for an item inside one (a finding, a motion, an attachment). Letters, digits and . _ : - only, starting with a letter or digit, up to 128 characters, so it is safe in URLs, file names and spreadsheet cells without escaping. Ids inside a record (for example `f1` for a finding) need only be unique within their list, and the validator checks that. Ids of whole records should be unique within the system that issues them; use a UUID or ULID when records from several systems will be combined.
+   */
+  assessmentId?: string;
+  /**
+   * open; remediation-planned; in-remediation; remediated (fixed, awaiting or past verification); risk-accepted (not being fixed; riskAcceptance is required); or closed.
+   */
+  status: "open" | "remediation-planned" | "in-remediation" | "remediated" | "risk-accepted" | "closed";
+  remediation?: Remediation;
+  riskAcceptance?: RiskAcceptance;
+}
+/**
+ * The plan to fix the issue.
+ */
+export interface Remediation {
+  /**
+   * What will be done, by whom (the third party or the organization).
+   */
+  plan?: string;
+  owner?: Person2;
+  /**
+   * When it is due.
+   */
+  dueDate?: string;
+  /**
+   * When it was completed.
+   */
+  completedAt?: string;
+  verifiedBy?: Person3;
+}
+/**
+ * Who is responsible for seeing it done.
+ */
+export interface Person2 {
+  /**
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
+   */
+  id?: string;
+  /**
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
+   */
+  name: string;
+  /**
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
+   */
+  title?: string;
+  /**
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
+   */
+  organization?: string;
+  /**
+   * Work email address, when readers need to contact the person.
+   */
+  email?: string;
+  /**
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
+   */
+  phone?: string;
+}
+/**
+ * Who confirmed the fix works. Separation between the person fixing and the person verifying is what examiners look for.
+ */
+export interface Person3 {
+  /**
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
+   */
+  id?: string;
+  /**
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
+   */
+  name: string;
+  /**
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
+   */
+  title?: string;
+  /**
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
+   */
+  organization?: string;
+  /**
+   * Work email address, when readers need to contact the person.
+   */
+  email?: string;
+  /**
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
+   */
+  phone?: string;
+}
+/**
+ * A documented decision to accept the risk instead of fixing it: who accepted it, when, why, and until when. Required when status is risk-accepted, because an undocumented acceptance is indistinguishable from an ignored finding.
+ */
+export interface RiskAcceptance {
+  acceptedBy: Person4;
+  /**
+   * When the risk was accepted.
+   */
+  acceptedAt: string;
+  /**
+   * When the acceptance expires and must be revisited. Must not be before acceptedAt. Open-ended acceptances are a common examination finding; give a date.
+   */
+  expiresOn?: string;
+  /**
+   * Why the risk is accepted, and any compensating controls.
+   */
+  rationale: string;
+}
+/**
+ * Who accepted the risk. Should be someone with authority to accept risk of this severity under the organization's policy.
+ */
+export interface Person4 {
+  /**
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
+   */
+  id?: string;
+  /**
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
+   */
+  name: string;
+  /**
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
+   */
+  title?: string;
+  /**
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
+   */
+  organization?: string;
+  /**
+   * Work email address, when readers need to contact the person.
+   */
+  email?: string;
+  /**
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
+   */
+  phone?: string;
+}
 /**
  * How often the relationship is reviewed and when the next review is due, plus the events that should prompt an earlier review. Cadence normally follows criticality.
  */
@@ -476,6 +646,8 @@ export interface ReviewCadence {
   nextReviewDue?: string;
   /**
    * Events that prompt a review outside the schedule.
+   *
+   * Items: One trigger event, in a few words.
    */
   triggers?: string[];
 }
@@ -489,6 +661,8 @@ export interface Decision {
   outcome: "approved" | "approved-with-conditions" | "rejected" | "deferred" | "terminate-relationship";
   /**
    * Conditions attached to the approval, each specific and checkable. Required, and must not be empty, when the outcome is approved-with-conditions.
+   *
+   * Items: One condition.
    */
   conditions?: string[];
   /**
@@ -504,7 +678,7 @@ export interface Decision {
  * One person's sign-off.
  */
 export interface Approval {
-  approver: Person2;
+  approver: Person5;
   /**
    * The role in which the person approves, which is what policy requires (a person may hold several).
    */
@@ -525,7 +699,7 @@ export interface Approval {
 /**
  * Who signed off.
  */
-export interface Person2 {
+export interface Person5 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
@@ -563,7 +737,7 @@ export interface StatusChange {
    * When the status changed.
    */
   at: string;
-  by?: Person3;
+  by?: Person6;
   /**
    * Why the status changed, in a sentence, especially for changes a reader wouldn't expect (a reopened review, a withdrawn item).
    */
@@ -572,7 +746,7 @@ export interface StatusChange {
 /**
  * Who changed the status. Leave out where naming the person would break a promise of anonymity (see patient-safety-incident).
  */
-export interface Person3 {
+export interface Person6 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
@@ -643,7 +817,7 @@ export interface AuditEntry {
    * When the action happened.
    */
   at: string;
-  actor: Person4;
+  actor: Person7;
   /**
    * What happened, as a short lower-case verb phrase. Use the same vocabulary across records so trails can be filtered; created, field-changed, attachment-added, approved, exported and viewed cover most systems.
    */
@@ -672,7 +846,7 @@ export interface AuditEntry {
 /**
  * Who acted: a person, or a system account named as a person reference (for example name: Nightly import).
  */
-export interface Person4 {
+export interface Person7 {
   /**
    * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
