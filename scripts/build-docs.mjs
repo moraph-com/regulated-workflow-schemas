@@ -21,12 +21,20 @@ The format records a review; it does not prescribe how to tier vendors or score 
   "patient-safety-incident": `## Informed by
 
 - AHRQ Common Formats for Event Reporting (Hospital): the event types (incident, near miss, unsafe condition), the event categories and the harm scale concepts.
-- WHO Conceptual Framework for the International Classification for Patient Safety (ICPS): incident characteristics, contributing factors, detection, mitigating and ameliorating actions.
+- WHO Conceptual Framework for the International Classification for Patient Safety (ICPS): incident type, patient outcome (harm), contributing factors, and actions taken to mitigate harm and reduce risk.
 - The hierarchy of actions widely used in root cause analysis (stronger, intermediate, weaker): \`investigation.actions[].strength\`.
 
 ## Privacy by design
 
-The \`patient\` block allows only an age band, sex and an opaque encounter reference: no names, dates of birth or record numbers, because \`additionalProperties\` is false there. The narrative fields ask reporters not to include identifiers, but a schema can't enforce that; screen free text before sharing records outside the organization. In the US, reports prepared for a patient safety organization may be patient safety work product with legal protections; this format does not decide that question.`,
+The \`patient\` block allows only an age band, sex and an opaque encounter reference: no names, dates of birth or record numbers, because \`additionalProperties\` is false there.
+
+That keeps identifiers out of the structured fields; it does not make a record de-identified:
+
+- Event, discovery and report dates, the facility and the location can identify a patient. Under the HIPAA Safe Harbor method, dates related to an individual (other than the year) are identifiers.
+- The narrative fields ask reporters not to include identifiers, but a schema can't enforce that. Screen free text before sharing records outside the organization.
+- An anonymous report has no \`reporter.contact\` (the schema enforces that), but \`statusHistory[].by\` and \`auditTrail[].actor\` can still name whoever submitted it. Systems that offer anonymous reporting should not record the reporter there.
+
+Treat records as confidential. In the US, reports prepared for a patient safety organization may be patient safety work product with legal protections; this format does not decide that question.`,
   "permit-application": `## Informed by
 
 - Common local-government permitting practice: intake, plan review by discipline in cycles, fees, inspections, issuance.
@@ -34,7 +42,7 @@ The \`patient\` block allows only an age band, sex and an opaque encounter refer
 
 | This format | BLDS (permits) |
 | --- | --- |
-| \`id\` / \`externalIds\` | PermitNum |
+| \`decision.permitNumber\` (or \`id\`, where the application and permit share a number) | PermitNum |
 | \`description\` | Description |
 | \`submittedAt\` | AppliedDate |
 | \`decision.decidedAt\` (outcome issued) | IssuedDate |
@@ -46,12 +54,17 @@ The \`patient\` block allows only an age band, sex and an opaque encounter refer
 | \`valuation\` | EstProjectCost |
 | \`building.dwellingUnits\` | HousingUnits |
 | \`site.location\` | Latitude, Longitude |
+| \`permitType.residential\` | PermitClassMapped (Residential / Commercial) |
+| \`building.area\` (in sq-ft) | TotalSqFt |
+| \`decision.expiresOn\` | ExpiresDate |
+| \`statusHistory\` (status finaled) | CompletedDate |
+| \`parties[]\` with role contractor: \`organization.name\`, \`license.number\` | ContractorCompanyName, ContractorLicNum |
 
 The mapping is a guide, not a certified crosswalk; check the BLDS version you publish to.
 
 ## Statutory clock
 
-Many jurisdictions set a time limit for deciding permit applications, with different rules for when the clock starts, which days count and what pauses it. \`statutoryClock\` records the basis the jurisdiction relies on and the counting it applied; it does not compute deadlines.`,
+Many jurisdictions set a time limit for deciding permit applications, with different rules for when the clock starts, which days count and what pauses it. \`statutoryClock\` records the basis the jurisdiction relies on and the counting it applied; it does not compute deadlines. \`startedAt\` and pauses are instants with a UTC offset, while \`dueOn\` is a calendar date; \`timeZone\` names the IANA zone whose calendar the days are counted in, so a deadline near midnight means the same day to every system.`,
   "board-action": `## Informed by
 
 - Parliamentary procedure as described in *Robert's Rules of Order*: main and secondary motions, seconds, vote thresholds, the presiding officer.
@@ -109,6 +122,10 @@ function conditions(node, local, path, out) {
   const at = path || "the record";
   const ifs = [n, ...(n.allOf ?? [])].filter((x) => x.if);
   for (const x of ifs) {
+    if (x.if.contains) {
+      if (x.then.maxItems === 1) out.push(`- \`${at}\` holds nothing else when it contains \`${JSON.stringify(x.if.contains.const)}\`.`);
+      continue;
+    }
     const [field, cond] = Object.entries(x.if.properties)[0];
     if (x.then.required) out.push(`- In \`${at}\`, when \`${field}\` is \`${JSON.stringify(cond.const)}\`, \`${x.then.required.join("`, `")}\` ${x.then.required.length > 1 ? "are" : "is"} required${x.then.properties?.[x.then.required[0]]?.minItems ? " and must not be empty" : ""}.`);
     if (x.then.not?.required) out.push(`- In \`${at}\`, when \`${field}\` is \`${JSON.stringify(cond.const)}\`, \`${x.then.not.required.join("`, `")}\` must be left out.`);

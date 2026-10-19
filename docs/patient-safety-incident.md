@@ -1,7 +1,7 @@
 <!-- Generated from schemas/ by scripts/build-docs.mjs. Do not edit by hand: run npm run docs. -->
 # Patient safety incident
 
-A report of a patient safety event (an incident that reached the patient, a near miss or an unsafe condition), with its harm assessment, contributing factors, immediate actions, notifications and investigation. Informed by the AHRQ Common Formats for Event Reporting and the WHO Conceptual Framework for the International Classification for Patient Safety (ICPS). Designed to carry as little protected health information as possible: the patient block holds no names, dates of birth or medical record numbers, only an opaque reference into the source system.
+A report of a patient safety event (an incident that reached the patient, a near miss or an unsafe condition), with its harm assessment, contributing factors, immediate actions, notifications and investigation. Informed by the AHRQ Common Formats for Event Reporting and the WHO Conceptual Framework for the International Classification for Patient Safety (ICPS). Designed to carry as little protected health information as possible: there are no fields for patient names, dates of birth or medical record numbers, only an opaque reference into the source system. Records are still not de-identified data: event dates and the facility can identify a patient, and free text can hold anything, so treat them as confidential.
 
 - Schema: [`schemas/patient-safety-incident.schema.json`](../schemas/patient-safety-incident.schema.json)
 - `$id`: `https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/patient-safety-incident.schema.json`
@@ -11,12 +11,20 @@ A report of a patient safety event (an incident that reached the patient, a near
 ## Informed by
 
 - AHRQ Common Formats for Event Reporting (Hospital): the event types (incident, near miss, unsafe condition), the event categories and the harm scale concepts.
-- WHO Conceptual Framework for the International Classification for Patient Safety (ICPS): incident characteristics, contributing factors, detection, mitigating and ameliorating actions.
+- WHO Conceptual Framework for the International Classification for Patient Safety (ICPS): incident type, patient outcome (harm), contributing factors, and actions taken to mitigate harm and reduce risk.
 - The hierarchy of actions widely used in root cause analysis (stronger, intermediate, weaker): `investigation.actions[].strength`.
 
 ## Privacy by design
 
-The `patient` block allows only an age band, sex and an opaque encounter reference: no names, dates of birth or record numbers, because `additionalProperties` is false there. The narrative fields ask reporters not to include identifiers, but a schema can't enforce that; screen free text before sharing records outside the organization. In the US, reports prepared for a patient safety organization may be patient safety work product with legal protections; this format does not decide that question.
+The `patient` block allows only an age band, sex and an opaque encounter reference: no names, dates of birth or record numbers, because `additionalProperties` is false there.
+
+That keeps identifiers out of the structured fields; it does not make a record de-identified:
+
+- Event, discovery and report dates, the facility and the location can identify a patient. Under the HIPAA Safe Harbor method, dates related to an individual (other than the year) are identifiers.
+- The narrative fields ask reporters not to include identifiers, but a schema can't enforce that. Screen free text before sharing records outside the organization.
+- An anonymous report has no `reporter.contact` (the schema enforces that), but `statusHistory[].by` and `auditTrail[].actor` can still name whoever submitted it. Systems that offer anonymous reporting should not record the reporter there.
+
+Treat records as confidential. In the US, reports prepared for a patient safety organization may be patient safety work product with legal protections; this format does not decide that question.
 
 ## Fields
 
@@ -67,7 +75,7 @@ Required means required whenever the containing object is present. Types in link
 | `immediateActions[].action` | string | yes | What was done. |
 | `immediateActions[].takenAt` | string (date-time) |  | When the action was taken. |
 | `immediateActions[].takenByRole` | string |  | The role of the person who acted, for example charge nurse. |
-| `reporter` | object | yes | Who reported the event. Reports may be anonymous; an anonymous report carries no contact details. |
+| `reporter` | object | yes | Who reported the event. Reports may be anonymous; an anonymous report carries no contact details, and systems should also keep the reporter's name out of statusHistory and auditTrail. |
 | `reporter.anonymous` | boolean | yes | Whether the reporter chose to stay anonymous. |
 | `reporter.role` | enum |  | physician, advanced-practice-provider, nurse, pharmacist, other-clinician, non-clinical-staff, patient-or-family or other. |
 | `reporter.contact` | [Person](common.md#person) |  | How to reach the reporter. Not allowed when the report is anonymous. |
@@ -101,9 +109,9 @@ Required means required whenever the containing object is present. Types in link
 | `psoSubmission.submittedAt` | string (date-time) |  | When it was submitted. |
 | `psoSubmission.commonFormatsVersion` | string |  | The version of the AHRQ Common Formats used for the submission, if any. |
 | `status` | enum | yes | submitted, triaged, under-investigation, action-plan, closed or not-a-safety-event. |
-| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first. |
+| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first, each one of the values of status. For an anonymous report, don't record the reporter in by. |
 | `attachments` | array of [Attachment](common.md#attachment) |  | Files that belong to the report. Keep identifiable clinical documents in the clinical record, not here. |
-| `auditTrail` | array of [Audit entry](common.md#audit-entry) |  | Recorded actions on the report, oldest first. |
+| `auditTrail` | array of [Audit entry](common.md#audit-entry) |  | Recorded actions on the report, oldest first. For an anonymous report, don't record the reporter as an actor. |
 | `extensions` | [Extensions](common.md#extensions) |  | Local fields this format doesn't define, namespaced as &lt;namespace&gt;:&lt;field&gt;. |
 
 ## Conditional requirements
@@ -116,7 +124,10 @@ JSON Schema can't check these; the validator in this package does (`rws-validate
 
 | Rule | Checks that |
 | --- | --- |
+| `unique-ids` | Attachments have unique ids. |
 | `occurred-before-discovered` | The event did not occur after it was discovered. |
 | `near-miss-did-not-reach` | A near miss did not reach the patient (reachedPatient is not true). |
 | `near-miss-no-harm` | A near miss has a harm level of no-harm or unknown. |
+| `incident-reached-patient` | An incident reached the patient (reachedPatient is not false); events that did not are near misses. |
+| `unsafe-condition-no-patient` | An unsafe condition did not reach or harm a patient (reachedPatient is not true; harm, if given, is no-harm or unknown). |
 | `dates-in-order` | The investigation was not completed before it started. |

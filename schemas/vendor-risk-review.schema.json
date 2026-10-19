@@ -130,7 +130,7 @@
     },
     "dataCategories": {
       "title": "Data categories",
-      "description": "The kinds of data the vendor stores, processes or can reach. Use none when it has no access to the organization's data.",
+      "description": "The kinds of data the vendor stores, processes or can reach. Use none, on its own, when it has no access to the organization's data.",
       "type": "array",
       "uniqueItems": true,
       "items": {
@@ -149,6 +149,14 @@
           "authentication-credentials",
           "source-code"
         ]
+      },
+      "if": {
+        "contains": {
+          "const": "none"
+        }
+      },
+      "then": {
+        "maxItems": 1
       }
     },
     "access": {
@@ -516,24 +524,22 @@
       }
     },
     "status": {
-      "title": "Status",
-      "description": "draft, in-review, pending-approval, approved, rejected or closed.",
-      "type": "string",
-      "enum": [
-        "draft",
-        "in-review",
-        "pending-approval",
-        "approved",
-        "rejected",
-        "closed"
-      ]
+      "$ref": "#/$defs/status",
+      "description": "draft, in-review, pending-approval, approved, rejected or closed."
     },
     "statusHistory": {
       "title": "Status history",
-      "description": "Every status the record has had, oldest first.",
+      "description": "Every status the record has had, oldest first, each one of the values of status.",
       "type": "array",
       "items": {
-        "$ref": "common.schema.json#/$defs/statusChange"
+        "$ref": "common.schema.json#/$defs/statusChange",
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/$defs/status",
+            "description": "The status the record moved to, one of this format's status values."
+          }
+        }
       }
     },
     "attachments": {
@@ -558,6 +564,19 @@
     }
   },
   "$defs": {
+    "status": {
+      "title": "Status",
+      "description": "The status values of this format.",
+      "type": "string",
+      "enum": [
+        "draft",
+        "in-review",
+        "pending-approval",
+        "approved",
+        "rejected",
+        "closed"
+      ]
+    },
     "riskLevel": {
       "title": "Risk level",
       "description": "low, moderate, high or critical.",

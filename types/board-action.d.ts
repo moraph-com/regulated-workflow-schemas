@@ -61,9 +61,14 @@ export interface BoardAction {
    */
   status: "scheduled" | "in-progress" | "decided" | "minutes-approved" | "withdrawn";
   /**
-   * Every status the record has had, oldest first.
+   * Every status the record has had, oldest first, each one of the values of status.
    */
-  statusHistory?: StatusChange[];
+  statusHistory?: (StatusChange & {
+    /**
+     * The status the record moved to, one of this format's status values.
+     */
+    status?: "scheduled" | "in-progress" | "decided" | "minutes-approved" | "withdrawn";
+  })[];
   /**
    * Files that belong to the item: staff reports, draft resolutions, presentations.
    */
@@ -533,7 +538,7 @@ export interface Minutes {
  */
 export interface StatusChange {
   /**
-   * The status the record moved to (one of the record's status values).
+   * The status the record moved to. Each format limits this to its own status values.
    */
   status: string;
   /**

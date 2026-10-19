@@ -491,23 +491,22 @@
       }
     },
     "status": {
-      "title": "Status",
-      "description": "scheduled, in-progress, decided, minutes-approved or withdrawn.",
-      "type": "string",
-      "enum": [
-        "scheduled",
-        "in-progress",
-        "decided",
-        "minutes-approved",
-        "withdrawn"
-      ]
+      "$ref": "#/$defs/status",
+      "description": "scheduled, in-progress, decided, minutes-approved or withdrawn."
     },
     "statusHistory": {
       "title": "Status history",
-      "description": "Every status the record has had, oldest first.",
+      "description": "Every status the record has had, oldest first, each one of the values of status.",
       "type": "array",
       "items": {
-        "$ref": "common.schema.json#/$defs/statusChange"
+        "$ref": "common.schema.json#/$defs/statusChange",
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/$defs/status",
+            "description": "The status the record moved to, one of this format's status values."
+          }
+        }
       }
     },
     "attachments": {
@@ -532,6 +531,18 @@
     }
   },
   "$defs": {
+    "status": {
+      "title": "Status",
+      "description": "The status values of this format.",
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in-progress",
+        "decided",
+        "minutes-approved",
+        "withdrawn"
+      ]
+    },
     "motion": {
       "title": "Motion",
       "description": "A motion, its second, the vote and the result.",

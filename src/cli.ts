@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 // rws-validate: check JSON files against the regulated workflow schemas.
 //
-//   rws-validate [--schema <recordType>] [--schema-only] [--json] <file.json>...
+//   rws-validate [--schema <recordType>] [--schema-only] [--json] <file.json | ->...
 //
 // Exit codes: 0 every file is valid, 1 at least one is invalid, 2 usage or read error.
 import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { RECORD_TYPES, isRecordType, validate, type ValidationResult } from "./index.js";
 
-const USAGE = `Usage: rws-validate [--schema <type>] [--schema-only] [--json] <file.json>...
+const USAGE = `Usage: rws-validate [--schema <type>] [--schema-only] [--json] <file.json | ->...
 
-Checks each file against its format, detected from $schema or recordType.
+Checks each file against its format, detected from $schema or recordType. Use - to read a record from stdin.
   --schema <type>   check against this format: ${RECORD_TYPES.join(", ")}
   --schema-only     skip the cross-field rules
   --json            print results as JSON
@@ -45,7 +45,7 @@ function main(argv: string[]): number {
   for (const file of positionals) {
     let record: unknown;
     try {
-      record = JSON.parse(readFileSync(file, "utf8"));
+      record = JSON.parse(readFileSync(file === "-" ? 0 : file, "utf8"));
     } catch (e) {
       results.push({ file, valid: false, recordType: null, errors: [], readError: (e as Error).message });
       continue;

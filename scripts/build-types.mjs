@@ -29,9 +29,25 @@ function untitlePrimitives(node) {
   return out;
 }
 
+// statusHistory items narrow common's statusChange to the format's own statuses with properties beside the $ref. That
+// is valid JSON Schema, but the type generator drops a $ref that has siblings, and its ref parser resolves local refs
+// beside an external one inside the external file. So rewrite { $ref, properties } as an intersection with the local
+// refs inlined.
+function narrowRefs(node, root) {
+  if (Array.isArray(node)) return node.map((n) => narrowRefs(n, root));
+  if (!node || typeof node !== "object") return node;
+  if (typeof node.$ref === "string" && !node.$ref.startsWith("#") && node.properties) {
+    const inline = (v) => (typeof v.$ref === "string" && v.$ref.startsWith("#/$defs/") ? (({ $ref, ...rest }) => ({ ...root.$defs[$ref.slice(8)], ...rest }))(v) : v);
+    const props = Object.fromEntries(Object.entries(node.properties).map(([k, v]) => [k, inline(v)]));
+    return { allOf: [{ $ref: node.$ref }, { type: "object", properties: props }] };
+  }
+  return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, narrowRefs(v, root)]));
+}
+
 const outputs = new Map();
 for (const t of RECORD_TYPES) {
-  const schema = untitlePrimitives(JSON.parse(readFileSync(schemaUrl(`${t}.schema.json`), "utf8")));
+  const raw = JSON.parse(readFileSync(schemaUrl(`${t}.schema.json`), "utf8"));
+  const schema = untitlePrimitives(narrowRefs(raw, raw));
   const ts = await compile(schema, pascal(t), {
     bannerComment: BANNER,
     cwd: new URL("../schemas/", import.meta.url).pathname,

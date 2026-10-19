@@ -373,7 +373,7 @@
       "properties": {
         "status": {
           "title": "Status",
-          "description": "The status the record moved to (one of the record's status values).",
+          "description": "The status the record moved to. Each format limits this to its own status values.",
           "type": "string",
           "minLength": 1,
           "maxLength": 60

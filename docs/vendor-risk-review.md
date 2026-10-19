@@ -41,7 +41,7 @@ Required means required whenever the containing object is present. Types in link
 | `services[].endDate` | string (date) |  | When the service ends or ended. |
 | `services[].contractRef` | string |  | The contract or order that covers the service. |
 | `services[].annualSpend` | [Money](common.md#money) |  | Expected or actual spend per year. |
-| `dataCategories` | array of enum |  | The kinds of data the vendor stores, processes or can reach. Use none when it has no access to the organization's data. |
+| `dataCategories` | array of enum |  | The kinds of data the vendor stores, processes or can reach. Use none, on its own, when it has no access to the organization's data. |
 | `access` | object |  | How the vendor reaches the organization's systems and data. |
 | `access.systemAccess` | enum |  | The highest level of access the vendor has to the organization's systems: none, read, read-write or administrative. |
 | `access.hostsData` | boolean |  | Whether the vendor stores the organization's data on infrastructure it controls. |
@@ -114,13 +114,14 @@ Required means required whenever the containing object is present. Types in link
 | `approvals[].at` | string (date-time) | yes | When. |
 | `approvals[].comment` | string |  | What the approver said. |
 | `status` | enum | yes | draft, in-review, pending-approval, approved, rejected or closed. |
-| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first. |
+| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first, each one of the values of status. |
 | `attachments` | array of [Attachment](common.md#attachment) |  | Files that belong to the review: reports, questionnaires, contracts. |
 | `auditTrail` | array of [Audit entry](common.md#audit-entry) |  | Recorded actions on the review, oldest first. |
 | `extensions` | [Extensions](common.md#extensions) |  | Local fields this format doesn't define, namespaced as &lt;namespace&gt;:&lt;field&gt;. |
 
 ## Conditional requirements
 
+- `dataCategories` holds nothing else when it contains `"none"`.
 - In `findings[]`, when `status` is `"risk-accepted"`, `riskAcceptance` is required.
 - In `decision`, when `outcome` is `"approved-with-conditions"`, `conditions` is required and must not be empty.
 
@@ -130,7 +131,8 @@ JSON Schema can't check these; the validator in this package does (`rws-validate
 
 | Rule | Checks that |
 | --- | --- |
+| `unique-ids` | Assessments, findings and attachments each have ids that are unique within their list. |
 | `assessment-exists` | A finding's assessmentId names an assessment in the same review. |
 | `attachment-exists` | Every attachment id an assessment lists is in attachments. |
 | `dates-in-order` | An assessment's periodEnd is not before its periodStart. |
-| `status-matches-decision` | A review with status approved has a decision of approved or approved-with-conditions. |
+| `status-matches-decision` | A review with status approved has a decision of approved or approved-with-conditions; one with status rejected has a decision of rejected (when a decision is given). |

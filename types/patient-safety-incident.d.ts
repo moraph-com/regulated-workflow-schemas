@@ -1,7 +1,7 @@
 /* Generated from schemas/ by scripts/build-types.mjs. Do not edit by hand: run npm run types. */
 
 /**
- * A report of a patient safety event (an incident that reached the patient, a near miss or an unsafe condition), with its harm assessment, contributing factors, immediate actions, notifications and investigation. Informed by the AHRQ Common Formats for Event Reporting and the WHO Conceptual Framework for the International Classification for Patient Safety (ICPS). Designed to carry as little protected health information as possible: the patient block holds no names, dates of birth or medical record numbers, only an opaque reference into the source system.
+ * A report of a patient safety event (an incident that reached the patient, a near miss or an unsafe condition), with its harm assessment, contributing factors, immediate actions, notifications and investigation. Informed by the AHRQ Common Formats for Event Reporting and the WHO Conceptual Framework for the International Classification for Patient Safety (ICPS). Designed to carry as little protected health information as possible: there are no fields for patient names, dates of birth or medical record numbers, only an opaque reference into the source system. Records are still not de-identified data: event dates and the facility can identify a patient, and free text can hold anything, so treat them as confidential.
  */
 export interface PatientSafetyIncident {
   /**
@@ -86,15 +86,20 @@ export interface PatientSafetyIncident {
    */
   status: "submitted" | "triaged" | "under-investigation" | "action-plan" | "closed" | "not-a-safety-event";
   /**
-   * Every status the record has had, oldest first.
+   * Every status the record has had, oldest first, each one of the values of status. For an anonymous report, don't record the reporter in by.
    */
-  statusHistory?: StatusChange[];
+  statusHistory?: (StatusChange & {
+    /**
+     * The status the record moved to, one of this format's status values.
+     */
+    status?: "submitted" | "triaged" | "under-investigation" | "action-plan" | "closed" | "not-a-safety-event";
+  })[];
   /**
    * Files that belong to the report. Keep identifiable clinical documents in the clinical record, not here.
    */
   attachments?: Attachment[];
   /**
-   * Recorded actions on the report, oldest first.
+   * Recorded actions on the report, oldest first. For an anonymous report, don't record the reporter as an actor.
    */
   auditTrail?: AuditEntry[];
   extensions?: Extensions;
@@ -335,7 +340,7 @@ export interface ImmediateAction {
   takenByRole?: string;
 }
 /**
- * Who reported the event. Reports may be anonymous; an anonymous report carries no contact details.
+ * Who reported the event. Reports may be anonymous; an anonymous report carries no contact details, and systems should also keep the reporter's name out of statusHistory and auditTrail.
  */
 export interface Reporter {
   /**
@@ -578,7 +583,7 @@ export interface PSOSubmission {
  */
 export interface StatusChange {
   /**
-   * The status the record moved to (one of the record's status values).
+   * The status the record moved to. Each format limits this to its own status values.
    */
   status: string;
   /**

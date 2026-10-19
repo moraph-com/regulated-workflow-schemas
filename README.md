@@ -26,10 +26,10 @@ software: for an examiner, an accreditor, a records request, a migration or a me
 
 | Format | What one record is | Informed by | Docs | Fields |
 | --- | --- | --- | --- | --- |
-| [`vendor-risk-review`](schemas/vendor-risk-review.schema.json) | One review of a third-party relationship: services, data and access, criticality, inherent and residual risk, assessments, findings and remediation, cadence, decision and approvals | OCC Bulletin 2023-17 (interagency third-party risk guidance), NIST SP 800-161 Rev. 1, ISO/IEC 27036 | [docs](docs/vendor-risk-review.md) | 100 |
-| [`patient-safety-incident`](schemas/patient-safety-incident.schema.json) | One patient safety event report: type, category, harm, contributing factors, actions, reporter (may be anonymous), notifications, investigation. Holds no direct patient identifiers. | AHRQ Common Formats, WHO ICPS framework | [docs](docs/patient-safety-incident.md) | 85 |
-| [`permit-application`](schemas/permit-application.schema.json) | One permit application from intake to final: parties, site, documents, fees, plan reviews by discipline and cycle, statutory clock, inspections, decision | Local-government permitting practice, BLDS | [docs](docs/permit-application.md) | 123 |
-| [`board-action`](schemas/board-action.schema.json) | One agenda item taken up by a board, council or commission: meeting, members, motions, votes, recusals, outcome, minutes | Robert's Rules of Order, open-meetings practice | [docs](docs/board-action.md) | 98 |
+| [`vendor-risk-review`](schemas/vendor-risk-review.schema.json) | One review of a third-party relationship: services, data and access, criticality, inherent and residual risk, assessments, findings and remediation, cadence, decision and approvals | OCC Bulletin 2023-17 (interagency third-party risk guidance), NIST SP 800-161 Rev. 1, ISO/IEC 27036 | [docs](docs/vendor-risk-review.md) | 96 |
+| [`patient-safety-incident`](schemas/patient-safety-incident.schema.json) | One patient safety event report: type, category, harm, contributing factors, actions, reporter (may be anonymous), notifications, investigation. Has no fields for direct patient identifiers (see [privacy](docs/patient-safety-incident.md#privacy-by-design)). | AHRQ Common Formats, WHO ICPS framework | [docs](docs/patient-safety-incident.md) | 81 |
+| [`permit-application`](schemas/permit-application.schema.json) | One permit application from intake to final: parties, site, documents, fees, plan reviews by discipline and cycle, statutory clock, inspections, decision | Local-government permitting practice, BLDS | [docs](docs/permit-application.md) | 109 |
+| [`board-action`](schemas/board-action.schema.json) | One agenda item taken up by a board, council or commission: meeting, members, motions, votes, recusals, outcome, minutes | Robert's Rules of Order, open-meetings practice | [docs](docs/board-action.md) | 88 |
 
 Field counts include nested fields. Shared building blocks (people, organizations, money, addresses, jurisdictions,
 attachments, status history, audit trail, extensions) are in [`common.schema.json`](schemas/common.schema.json),
@@ -87,15 +87,22 @@ if (!result.valid) {
 ```
 
 `validate` checks the JSON Schema first, then cross-field rules that JSON Schema can't express (a tally must match the
-votes, a finding must point at a real assessment, a near miss can't have reached the patient). Each format's docs list
-its rules. Pass `{ schemaOnly: true }` to skip them, or `{ recordType }` to force a format. `createAjv()` returns a
+votes and the result must meet the motion's threshold, a finding must point at a real assessment, a near miss can't have
+reached the patient, ids must be unique). Each format's docs list its rules. If a record's `$schema` and `recordType`
+name different formats, `validate` reports that one problem instead of checking against either. Pass `{ schemaOnly: true }` to skip them, or `{ recordType }` to force a format. `createAjv()` returns a
 configured [Ajv](https://ajv.js.org) instance with every schema loaded.
+
+The library is ESM and reads the schemas from the package with `node:fs`, so it runs on Node.js 20 or later (and in
+CommonJS through `require` on Node versions that support loading ES modules that way). In browsers or edge runtimes,
+load the JSON files from `schemas/` yourself and use any 2020-12 validator; the cross-field rules are not available
+there yet.
 
 ### Command line
 
 ```sh
 npx rws-validate examples/*/valid-*.json
 npx rws-validate --json --schema board-action my-record.json
+some-export-command | npx rws-validate -   # read one record from stdin
 ```
 
 Exit code 0 means every file is valid, 1 means at least one isn't, and 2 means a usage or read error.

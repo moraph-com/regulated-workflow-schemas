@@ -65,13 +65,16 @@ function validator(t: RecordType): ValidateFunction {
  * recordType. Null when neither names a known format.
  */
 export function detectRecordType(record: unknown): RecordType | null {
-  if (!record || typeof record !== "object" || Array.isArray(record)) return null;
+  const { fromSchema, fromRecordType } = declared(record);
+  return fromSchema ?? fromRecordType;
+}
+
+/** The format named by the record's $schema and by its recordType, each null when absent or unknown. */
+function declared(record: unknown): { fromSchema: RecordType | null; fromRecordType: RecordType | null } {
+  if (!record || typeof record !== "object" || Array.isArray(record)) return { fromSchema: null, fromRecordType: null };
   const r = record as Record<string, unknown>;
-  if (typeof r.$schema === "string") {
-    const m = /\/([a-z-]+)\.schema\.json(?:#.*)?$/.exec(r.$schema);
-    if (m && isRecordType(m[1])) return m[1];
-  }
-  return isRecordType(r.recordType) ? r.recordType : null;
+  const m = typeof r.$schema === "string" ? /\/([a-z-]+)\.schema\.json(?:#.*)?$/.exec(r.$schema) : null;
+  return { fromSchema: m && isRecordType(m[1]) ? m[1] : null, fromRecordType: isRecordType(r.recordType) ? r.recordType : null };
 }
 
 const fromAjv = (e: ErrorObject): ValidationError => {
@@ -85,7 +88,16 @@ const fromRule = (e: RuleError): ValidationError => ({ path: e.path, source: "ru
 
 /** Check one record. Never throws on bad input; returns the problems instead. */
 export function validate(record: unknown, options: ValidateOptions = {}): ValidationResult {
-  const recordType = options.recordType ?? detectRecordType(record);
+  const { fromSchema, fromRecordType } = declared(record);
+  if (!options.recordType && fromSchema && fromRecordType && fromSchema !== fromRecordType) {
+    // Checking against either format would bury the real problem under dozens of unrelated errors.
+    return {
+      valid: false,
+      recordType: null,
+      errors: [{ path: "/$schema", source: "schema", keyword: "$schema", message: `names ${fromSchema} but recordType is ${fromRecordType}` }],
+    };
+  }
+  const recordType = options.recordType ?? fromSchema ?? fromRecordType;
   if (!recordType) {
     return {
       valid: false,

@@ -10,8 +10,8 @@
     "country": "US"
   },
   "vendor": {
-    "name": "Ledgerline Payroll",
-    "legalName": "Ledgerline Payroll Services, Inc.",
+    "name": "Ledgerline Payroll (fictional)",
+    "legalName": "Ledgerline Payroll Services, Inc. (fictional)",
     "identifiers": [
       {
         "scheme": "EIN",
@@ -53,12 +53,12 @@
     ],
     "subcontractors": [
       {
-        "name": "Cloudwell Hosting",
+        "name": "Cloudwell Hosting (fictional)",
         "service": "Infrastructure hosting",
         "country": "US"
       },
       {
-        "name": "Printpost Mail Services",
+        "name": "Printpost Mail Services (fictional)",
         "service": "Paper pay statement printing",
         "country": "US"
       }

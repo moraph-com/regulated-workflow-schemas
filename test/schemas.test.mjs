@@ -43,7 +43,8 @@ test("every property has a description, and every object closes its properties",
   const problems = [];
   const visit = (node, path) => {
     if (!node || typeof node !== "object") return;
-    if (node.type === "object" && node.properties && node.additionalProperties !== false) problems.push(`${path} allows unknown properties`);
+    // A $ref with sibling properties narrows a closed shared definition (statusHistory items), so it stays closed.
+    if (node.type === "object" && node.properties && node.additionalProperties !== false && !node.$ref) problems.push(`${path} allows unknown properties`);
     for (const [k, v] of Object.entries(node.properties ?? {})) {
       if (!v.description) problems.push(`${path}.${k} has no description`);
       visit(v, `${path}.${k}`);

@@ -150,7 +150,7 @@ Type: array.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `status` | string | yes | The status the record moved to (one of the record's status values). |
+| `status` | string | yes | The status the record moved to. Each format limits this to its own status values. |
 | `at` | string (date-time) | yes | When it happened. |
 | `by` | [Person](common.md#person) |  | Who made the change. |
 | `reason` | string |  | Why the status changed. |

@@ -32,7 +32,9 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./types": "./types/index.d.ts",
+    "./types": {
+      "types": "./types/index.d.ts"
+    },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"
   },

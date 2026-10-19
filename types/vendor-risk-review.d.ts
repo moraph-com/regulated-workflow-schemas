@@ -57,7 +57,7 @@ export interface VendorRiskReview {
    */
   services: [Service, ...Service[]];
   /**
-   * The kinds of data the vendor stores, processes or can reach. Use none when it has no access to the organization's data.
+   * The kinds of data the vendor stores, processes or can reach. Use none, on its own, when it has no access to the organization's data.
    */
   dataCategories?: (
     | "none"
@@ -107,9 +107,14 @@ export interface VendorRiskReview {
    */
   status: "draft" | "in-review" | "pending-approval" | "approved" | "rejected" | "closed";
   /**
-   * Every status the record has had, oldest first.
+   * Every status the record has had, oldest first, each one of the values of status.
    */
-  statusHistory?: StatusChange[];
+  statusHistory?: (StatusChange & {
+    /**
+     * The status the record moved to, one of this format's status values.
+     */
+    status?: "draft" | "in-review" | "pending-approval" | "approved" | "rejected" | "closed";
+  })[];
   /**
    * Files that belong to the review: reports, questionnaires, contracts.
    */
@@ -551,7 +556,7 @@ export interface Person2 {
  */
 export interface StatusChange {
   /**
-   * The status the record moved to (one of the record's status values).
+   * The status the record moved to. Each format limits this to its own status values.
    */
   status: string;
   /**

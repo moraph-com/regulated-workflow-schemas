@@ -105,7 +105,7 @@ Required means required whenever the containing object is present. Types in link
 | `minutes.approvedAt` | string (date-time) |  | When the minutes were approved. |
 | `minutes.uri` | string (uri) |  | Where the published minutes can be read. |
 | `status` | enum | yes | scheduled, in-progress, decided, minutes-approved or withdrawn. |
-| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first. |
+| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first, each one of the values of status. |
 | `attachments` | array of [Attachment](common.md#attachment) |  | Files that belong to the item: staff reports, draft resolutions, presentations. |
 | `auditTrail` | array of [Audit entry](common.md#audit-entry) |  | Recorded actions on the record, oldest first. |
 | `extensions` | [Extensions](common.md#extensions) |  | Local fields this format doesn't define, namespaced as &lt;namespace&gt;:&lt;field&gt;. |
@@ -120,13 +120,17 @@ JSON Schema can't check these; the validator in this package does (`rws-validate
 
 | Rule | Checks that |
 | --- | --- |
+| `unique-ids` | Members, motions and attachments each have ids that are unique within their list. |
 | `member-exists` | Every member id used (presiding officer, mover, seconder, voters, recusals) is in members. |
 | `attachment-exists` | Every attachment id on the agenda item is in attachments. |
 | `second-differs` | A member does not second their own motion. |
+| `no-second-recorded` | A motion that died for lack of a second has no secondedBy. |
 | `recused-not-acting` | A recused member does not move or second a motion. |
-| `motion-exists` | appliesToMotionId names another motion on the item. |
+| `motion-exists` | appliesToMotionId names another motion on the item, not the motion itself. |
 | `one-vote-each` | Each member has at most one vote per motion. |
 | `voting-member` | Only voting members cast a vote (non-voting members may be listed as absent). |
+| `present-to-vote` | A member whose attendance is absent or excused has no yes, no or abstain vote. |
 | `recused-vote` | A recused member's vote is recorded as recused. |
 | `recusal-recorded` | A vote of recused has a matching entry in recusals. |
 | `tally-matches-votes` | When both are given, the tally agrees with the individual votes. |
+| `threshold-met` | A motion adopted or failed under a stated threshold has counts that agree: votes cast (yes against no, abstentions not counted), unanimous (no votes against), or members (the voting members listed in members). Checked only when the threshold and the votes or tally are given. |

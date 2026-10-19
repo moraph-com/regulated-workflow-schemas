@@ -470,7 +470,7 @@
     },
     "statutoryClock": {
       "title": "Statutory review clock",
-      "description": "The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied.",
+      "description": "The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied. startedAt and pauses are instants; days are counted in timeZone's calendar.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -501,13 +501,19 @@
             "business"
           ]
         },
+        "timeZone": {
+          "title": "Time zone",
+          "description": "The IANA time zone whose calendar the jurisdiction counts days in, for example America/Chicago or Europe/London. dueOn is a date in this zone; give it whenever dueOn is given, so every system computes the same day.",
+          "type": "string",
+          "pattern": "^(UTC|[A-Z][A-Za-z_]+(/[A-Za-z0-9_+-]+){1,2})$"
+        },
         "startedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
           "description": "When it started."
         },
         "dueOn": {
           "$ref": "common.schema.json#/$defs/date",
-          "description": "The date the decision is due under the basis, after pauses."
+          "description": "The local date (in timeZone) by which the decision is due under the basis, after pauses."
         },
         "pauses": {
           "title": "Pauses",
@@ -695,31 +701,22 @@
       }
     },
     "status": {
-      "title": "Status",
-      "description": "draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn or expired.",
-      "type": "string",
-      "enum": [
-        "draft",
-        "submitted",
-        "intake-review",
-        "incomplete",
-        "in-review",
-        "corrections-required",
-        "approved",
-        "issued",
-        "under-inspection",
-        "finaled",
-        "denied",
-        "withdrawn",
-        "expired"
-      ]
+      "$ref": "#/$defs/status",
+      "description": "draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn, expired or revoked."
     },
     "statusHistory": {
       "title": "Status history",
-      "description": "Every status the record has had, oldest first.",
+      "description": "Every status the record has had, oldest first, each one of the values of status.",
       "type": "array",
       "items": {
-        "$ref": "common.schema.json#/$defs/statusChange"
+        "$ref": "common.schema.json#/$defs/statusChange",
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/$defs/status",
+            "description": "The status the record moved to, one of this format's status values."
+          }
+        }
       }
     },
     "attachments": {
@@ -744,6 +741,27 @@
     }
   },
   "$defs": {
+    "status": {
+      "title": "Status",
+      "description": "The status values of this format.",
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "intake-review",
+        "incomplete",
+        "in-review",
+        "corrections-required",
+        "approved",
+        "issued",
+        "under-inspection",
+        "finaled",
+        "denied",
+        "withdrawn",
+        "expired",
+        "revoked"
+      ]
+    },
     "party": {
       "title": "Party",
       "description": "A person or organization on the application, in a role. Give a person, an organization, or both (a contact at a firm).",

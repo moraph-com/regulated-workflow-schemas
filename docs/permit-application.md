@@ -15,7 +15,7 @@ An application for a building, land-use or other local-government permit, from s
 
 | This format | BLDS (permits) |
 | --- | --- |
-| `id` / `externalIds` | PermitNum |
+| `decision.permitNumber` (or `id`, where the application and permit share a number) | PermitNum |
 | `description` | Description |
 | `submittedAt` | AppliedDate |
 | `decision.decidedAt` (outcome issued) | IssuedDate |
@@ -27,12 +27,17 @@ An application for a building, land-use or other local-government permit, from s
 | `valuation` | EstProjectCost |
 | `building.dwellingUnits` | HousingUnits |
 | `site.location` | Latitude, Longitude |
+| `permitType.residential` | PermitClassMapped (Residential / Commercial) |
+| `building.area` (in sq-ft) | TotalSqFt |
+| `decision.expiresOn` | ExpiresDate |
+| `statusHistory` (status finaled) | CompletedDate |
+| `parties[]` with role contractor: `organization.name`, `license.number` | ContractorCompanyName, ContractorLicNum |
 
 The mapping is a guide, not a certified crosswalk; check the BLDS version you publish to.
 
 ## Statutory clock
 
-Many jurisdictions set a time limit for deciding permit applications, with different rules for when the clock starts, which days count and what pauses it. `statutoryClock` records the basis the jurisdiction relies on and the counting it applied; it does not compute deadlines.
+Many jurisdictions set a time limit for deciding permit applications, with different rules for when the clock starts, which days count and what pauses it. `statutoryClock` records the basis the jurisdiction relies on and the counting it applied; it does not compute deadlines. `startedAt` and pauses are instants with a UTC offset, while `dueOn` is a calendar date; `timeZone` names the IANA zone whose calendar the days are counted in, so a deadline near midnight means the same day to every system.
 
 ## Fields
 
@@ -115,12 +120,13 @@ Required means required whenever the containing object is present. Types in link
 | `reviews[].comments[].sheet` | string |  | The plan sheet the comment refers to, for example A2.1. |
 | `reviews[].comments[].codeSection` | string |  | The code section cited. |
 | `reviews[].comments[].resolved` | boolean |  | Whether the comment has been resolved. |
-| `statutoryClock` | object |  | The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied. |
+| `statutoryClock` | object |  | The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied. startedAt and pauses are instants; days are counted in timeZone's calendar. |
 | `statutoryClock.basis` | string | yes | The law, ordinance or policy that sets the deadline, as cited locally. |
 | `statutoryClock.days` | integer | yes | Days allowed for the decision. |
 | `statutoryClock.dayType` | enum | yes | calendar or business days. |
+| `statutoryClock.timeZone` | string |  | The IANA time zone whose calendar the jurisdiction counts days in, for example America/Chicago or Europe/London. dueOn is a date in this zone; give it whenever dueOn is given, so every system computes the same day. |
 | `statutoryClock.startedAt` | string (date-time) |  | When it started. |
-| `statutoryClock.dueOn` | string (date) |  | The date the decision is due under the basis, after pauses. |
+| `statutoryClock.dueOn` | string (date) |  | The local date (in timeZone) by which the decision is due under the basis, after pauses. |
 | `statutoryClock.pauses` | array of object |  | Periods when the clock stopped, for example while waiting for the applicant. |
 | `statutoryClock.pauses[].from` | string (date-time) | yes | When the pause began. |
 | `statutoryClock.pauses[].to` | string (date-time) |  | When the pause ended; leave out while it continues. |
@@ -143,8 +149,8 @@ Required means required whenever the containing object is present. Types in link
 | `decision.reasons` | string |  | Reasons for a denial or revocation. |
 | `decision.expiresOn` | string (date) |  | When it expires. |
 | `decision.appealDeadline` | string (date) |  | Last day to file an appeal. |
-| `status` | enum | yes | draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn or expired. |
-| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first. |
+| `status` | enum | yes | draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn, expired or revoked. |
+| `statusHistory` | array of [Status change](common.md#status-change) |  | Every status the record has had, oldest first, each one of the values of status. |
 | `attachments` | array of [Attachment](common.md#attachment) |  | Files that belong to the application: plans, calculations, photos, letters. |
 | `auditTrail` | array of [Audit entry](common.md#audit-entry) |  | Recorded actions on the application, oldest first. |
 | `extensions` | [Extensions](common.md#extensions) |  | Local fields this format doesn't define, namespaced as &lt;namespace&gt;:&lt;field&gt;. |
@@ -162,6 +168,8 @@ JSON Schema can't check these; the validator in this package does (`rws-validate
 
 | Rule | Checks that |
 | --- | --- |
+| `unique-ids` | Attachments have unique ids. |
 | `attachment-exists` | Every submitted document points at an entry in attachments. |
 | `dates-in-order` | A statutory clock pause does not end before it starts. |
-| `issued-has-decision` | An application with status issued has a decision with outcome issued. |
+| `issued-has-decision` | An application with status issued, under-inspection or finaled has a decision with outcome issued. |
+| `status-matches-decision` | An application with status approved, denied, withdrawn or revoked has a decision with the same outcome, when a decision is given. |

@@ -88,7 +88,7 @@ export interface PermitApplication {
   inspections?: Inspection[];
   decision?: Decision;
   /**
-   * draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn or expired.
+   * draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn, expired or revoked.
    */
   status:
     | "draft"
@@ -103,11 +103,31 @@ export interface PermitApplication {
     | "finaled"
     | "denied"
     | "withdrawn"
-    | "expired";
+    | "expired"
+    | "revoked";
   /**
-   * Every status the record has had, oldest first.
+   * Every status the record has had, oldest first, each one of the values of status.
    */
-  statusHistory?: StatusChange[];
+  statusHistory?: (StatusChange & {
+    /**
+     * The status the record moved to, one of this format's status values.
+     */
+    status?:
+      | "draft"
+      | "submitted"
+      | "intake-review"
+      | "incomplete"
+      | "in-review"
+      | "corrections-required"
+      | "approved"
+      | "issued"
+      | "under-inspection"
+      | "finaled"
+      | "denied"
+      | "withdrawn"
+      | "expired"
+      | "revoked";
+  })[];
   /**
    * Files that belong to the application: plans, calculations, photos, letters.
    */
@@ -402,7 +422,7 @@ export interface Comment {
   resolved?: boolean;
 }
 /**
- * The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied.
+ * The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied. startedAt and pauses are instants; days are counted in timeZone's calendar.
  */
 export interface StatutoryReviewClock {
   /**
@@ -418,11 +438,15 @@ export interface StatutoryReviewClock {
    */
   dayType: "calendar" | "business";
   /**
+   * The IANA time zone whose calendar the jurisdiction counts days in, for example America/Chicago or Europe/London. dueOn is a date in this zone; give it whenever dueOn is given, so every system computes the same day.
+   */
+  timeZone?: string;
+  /**
    * When it started.
    */
   startedAt?: string;
   /**
-   * The date the decision is due under the basis, after pauses.
+   * The local date (in timeZone) by which the decision is due under the basis, after pauses.
    */
   dueOn?: string;
   /**
@@ -578,7 +602,7 @@ export interface Person2 {
  */
 export interface StatusChange {
   /**
-   * The status the record moved to (one of the record's status values).
+   * The status the record moved to. Each format limits this to its own status values.
    */
   status: string;
   /**

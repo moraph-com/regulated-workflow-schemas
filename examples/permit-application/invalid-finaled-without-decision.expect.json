@@ -1,0 +1,8 @@
+{
+  "reason": "A finaled permit was issued first, so the record needs a decision with outcome issued.",
+  "expect": {
+    "source": "rule",
+    "keyword": "issued-has-decision",
+    "path": "/decision"
+  }
+}

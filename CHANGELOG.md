@@ -15,3 +15,9 @@ First public draft.
   status history, audit trail, extensions.
 - Validator library and `rws-validate` command line, with cross-field rules for each format.
 - Generated TypeScript types and field-by-field docs.
+- Each format's `statusHistory` accepts only that format's status values.
+- `permit-application`: `revoked` status; `statutoryClock.timeZone` (IANA zone the days are counted in).
+- `vendor-risk-review`: `dataCategories` can't combine `none` with other categories.
+- Cross-field rules for unique ids in every format; board vote thresholds, attendance and seconds; incident and unsafe
+  condition consistency; permit and vendor status matching the decision.
+- `validate` reports a `$schema` that contradicts `recordType` as one error; `rws-validate -` reads stdin.
