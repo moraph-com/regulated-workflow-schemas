@@ -1,0 +1,98 @@
+{
+  "recordType": "board-action",
+  "schemaVersion": "0.1.0",
+  "id": "bod-2026-q2-4",
+  "body": {
+    "name": "Board of Directors",
+    "type": "board-of-directors",
+    "organization": {
+      "name": "Example Credit Union (fictional)"
+    },
+    "publicBody": false
+  },
+  "meeting": {
+    "type": "regular",
+    "scheduledStart": "2026-04-22T14:00:00Z",
+    "quorum": {
+      "required": 4,
+      "present": 6
+    }
+  },
+  "members": [
+    {
+      "id": "d1",
+      "name": "Director A",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "d2",
+      "name": "Director B",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "d3",
+      "name": "Director C",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "d4",
+      "name": "Director D",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "d5",
+      "name": "Director E",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "d6",
+      "name": "Director F",
+      "voting": true,
+      "attendance": "remote"
+    },
+    {
+      "id": "ceo",
+      "name": "Chief Executive",
+      "voting": false,
+      "attendance": "present"
+    }
+  ],
+  "agendaItem": {
+    "number": "4",
+    "title": "Approve updated Third-Party Risk Management Policy",
+    "section": "consent"
+  },
+  "motions": [
+    {
+      "id": "x1",
+      "kind": "main",
+      "text": "Approve the updated policy as presented.",
+      "movedBy": "d1",
+      "secondedBy": "d2",
+      "voteMethod": "voice",
+      "threshold": "majority-of-votes-cast",
+      "result": "adopted",
+      "tally": {
+        "yes": 6,
+        "no": 0
+      }
+    },
+    {
+      "id": "x2",
+      "kind": "amend",
+      "appliesToMotionId": "x1",
+      "text": "Change the annual review to semiannual for critical vendors.",
+      "movedBy": "d3",
+      "result": "died-for-lack-of-second"
+    }
+  ],
+  "outcome": {
+    "result": "approved"
+  },
+  "status": "decided"
+}

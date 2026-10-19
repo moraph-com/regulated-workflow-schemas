@@ -1,0 +1,44 @@
+{
+  "recordType": "vendor-risk-review",
+  "schemaVersion": "0.1.0",
+  "id": "vrr-2026-0199",
+  "vendor": {
+    "name": "Quillmark Document Signing",
+    "country": "GB"
+  },
+  "lifecycleStage": "due-diligence",
+  "services": [
+    {
+      "name": "Electronic signature",
+      "supportsCriticalActivity": false
+    }
+  ],
+  "dataCategories": [
+    "personal-data",
+    "confidential"
+  ],
+  "access": {
+    "systemAccess": "none",
+    "hostsData": true,
+    "dataLocations": [
+      "GB",
+      "IE"
+    ]
+  },
+  "criticality": "moderate",
+  "inherentRisk": {
+    "level": "moderate"
+  },
+  "assessments": [
+    {
+      "id": "q1",
+      "type": "questionnaire",
+      "description": "Standard security questionnaire, sent 2026-04-01.",
+      "result": "inconclusive"
+    }
+  ],
+  "reviewCadence": {
+    "frequency": "biennial"
+  },
+  "status": "in-review"
+}

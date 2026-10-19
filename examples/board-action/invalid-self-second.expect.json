@@ -1,0 +1,8 @@
+{
+  "reason": "A member cannot second their own motion.",
+  "expect": {
+    "source": "rule",
+    "keyword": "second-differs",
+    "path": "/motions/0/secondedBy"
+  }
+}

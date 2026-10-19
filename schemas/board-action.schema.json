@@ -1,0 +1,711 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/board-action.schema.json",
+  "title": "Board action",
+  "description": "The record of one agenda item taken up by a board, council, commission or committee: the meeting, who attended, the motions made, who moved and seconded them, each member's vote, recusals and the outcome. Informed by parliamentary procedure as described in Robert's Rules of Order and by common open-meetings practice. Works for corporate boards and public bodies alike.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recordType",
+    "schemaVersion",
+    "id",
+    "body",
+    "meeting",
+    "members",
+    "agendaItem",
+    "status"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "description": "The $id of this schema, so readers can tell what the record is.",
+      "type": "string",
+      "format": "uri"
+    },
+    "recordType": {
+      "title": "Record type",
+      "description": "Always board-action.",
+      "const": "board-action"
+    },
+    "schemaVersion": {
+      "title": "Schema version",
+      "description": "The version of this format the record follows.",
+      "const": "0.1.0"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/identifier",
+      "description": "This record's identifier, unique within the system that created it."
+    },
+    "externalIds": {
+      "title": "External identifiers",
+      "description": "Ids for this action in other systems, for example a legislative management or board portal system.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/externalId"
+      }
+    },
+    "createdAt": {
+      "$ref": "common.schema.json#/$defs/dateTime",
+      "description": "When the record was created."
+    },
+    "updatedAt": {
+      "$ref": "common.schema.json#/$defs/dateTime",
+      "description": "When the record was last changed."
+    },
+    "body": {
+      "title": "Body",
+      "description": "The board, council, commission or committee that acted.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "Identifier for the body."
+        },
+        "name": {
+          "title": "Name",
+          "description": "The body's name, for example Board of Directors or Planning Commission.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "type": {
+          "title": "Body type",
+          "description": "board-of-directors, board-committee, board-of-trustees, city-council, county-board, school-board, planning-commission, authority-board, advisory-committee or other.",
+          "type": "string",
+          "enum": [
+            "board-of-directors",
+            "board-committee",
+            "board-of-trustees",
+            "city-council",
+            "county-board",
+            "school-board",
+            "planning-commission",
+            "authority-board",
+            "advisory-committee",
+            "other"
+          ]
+        },
+        "organization": {
+          "$ref": "common.schema.json#/$defs/organizationRef",
+          "description": "The organization the body governs, for corporate and nonprofit boards."
+        },
+        "jurisdiction": {
+          "$ref": "common.schema.json#/$defs/jurisdiction",
+          "description": "The public body's jurisdiction, if any."
+        },
+        "publicBody": {
+          "title": "Public body",
+          "description": "Whether open-meetings law applies to the body.",
+          "type": "boolean"
+        }
+      }
+    },
+    "meeting": {
+      "title": "Meeting",
+      "description": "The meeting at which the item was taken up.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "scheduledStart"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "Identifier for the meeting."
+        },
+        "type": {
+          "title": "Meeting type",
+          "description": "regular, special, emergency, annual, closed-session or workshop.",
+          "type": "string",
+          "enum": [
+            "regular",
+            "special",
+            "emergency",
+            "annual",
+            "closed-session",
+            "workshop"
+          ]
+        },
+        "scheduledStart": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When the meeting was scheduled to start."
+        },
+        "calledToOrderAt": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When the meeting was called to order."
+        },
+        "adjournedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When the meeting adjourned."
+        },
+        "location": {
+          "title": "Location",
+          "description": "Where the meeting was held, including any remote access details made public.",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "remoteParticipation": {
+          "title": "Remote participation",
+          "description": "Whether members could take part remotely.",
+          "type": "boolean"
+        },
+        "noticePostedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When public notice of the meeting was posted."
+        },
+        "openToPublic": {
+          "title": "Open to the public",
+          "description": "Whether the public could attend this part of the meeting.",
+          "type": "boolean"
+        },
+        "closedSessionBasis": {
+          "title": "Closed session basis",
+          "description": "The legal basis for closing the meeting, as cited locally, when it was closed.",
+          "type": "string",
+          "maxLength": 500
+        },
+        "presidingOfficerId": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "The member id of the presiding officer."
+        },
+        "quorum": {
+          "title": "Quorum",
+          "description": "Whether enough voting members were present to act.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required",
+            "present"
+          ],
+          "properties": {
+            "required": {
+              "title": "Required",
+              "description": "Voting members needed for a quorum.",
+              "type": "integer",
+              "minimum": 1
+            },
+            "present": {
+              "title": "Present",
+              "description": "Voting members present when the item was taken up.",
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "members": {
+      "title": "Members",
+      "description": "Every member of the body for this meeting and whether they attended. Motions, votes and recusals refer to members by id.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Member",
+        "description": "One member of the body.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "voting",
+          "attendance"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/identifier",
+            "description": "Identifier for the member, used by motions, votes and recusals."
+          },
+          "name": {
+            "title": "Name",
+            "description": "The member's name.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "seat": {
+            "title": "Seat",
+            "description": "Office or seat, for example Chair, District 3 or Independent Director.",
+            "type": "string",
+            "maxLength": 200
+          },
+          "voting": {
+            "title": "Voting member",
+            "description": "Whether the member has a vote (false for ex officio non-voting members).",
+            "type": "boolean"
+          },
+          "attendance": {
+            "title": "Attendance",
+            "description": "present, remote, absent, excused or arrived-late.",
+            "type": "string",
+            "enum": [
+              "present",
+              "remote",
+              "absent",
+              "excused",
+              "arrived-late"
+            ]
+          }
+        }
+      }
+    },
+    "agendaItem": {
+      "title": "Agenda item",
+      "description": "The item the body took up.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "number",
+        "title"
+      ],
+      "properties": {
+        "number": {
+          "title": "Number",
+          "description": "The item's number on the agenda, for example 7.b.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "title": {
+          "title": "Title",
+          "description": "The item's title as published.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "section": {
+          "title": "Section",
+          "description": "consent, action, public-hearing, discussion, report or closed-session.",
+          "type": "string",
+          "enum": [
+            "consent",
+            "action",
+            "public-hearing",
+            "discussion",
+            "report",
+            "closed-session"
+          ]
+        },
+        "summary": {
+          "title": "Summary",
+          "description": "The staff or sponsor summary of the item.",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "sponsor": {
+          "$ref": "common.schema.json#/$defs/personRef",
+          "description": "Who brought the item."
+        },
+        "attachmentIds": {
+          "$ref": "common.schema.json#/$defs/attachmentIds",
+          "description": "Ids of related entries in the record's attachments."
+        },
+        "publicComments": {
+          "title": "Public comments",
+          "description": "Comments from the public on the item.",
+          "type": "array",
+          "items": {
+            "title": "Public comment",
+            "description": "One comment.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "summary"
+            ],
+            "properties": {
+              "speaker": {
+                "title": "Speaker",
+                "description": "The speaker's name as given; leave out when they did not give one.",
+                "type": "string",
+                "maxLength": 200
+              },
+              "position": {
+                "title": "Position",
+                "description": "support, oppose or neutral.",
+                "type": "string",
+                "enum": [
+                  "support",
+                  "oppose",
+                  "neutral"
+                ]
+              },
+              "format": {
+                "title": "Format",
+                "description": "in-person, remote or written.",
+                "type": "string",
+                "enum": [
+                  "in-person",
+                  "remote",
+                  "written"
+                ]
+              },
+              "summary": {
+                "title": "Summary",
+                "description": "What the speaker said, in brief.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            }
+          }
+        }
+      }
+    },
+    "motions": {
+      "title": "Motions",
+      "description": "Motions made on the item, in the order they were made.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/motion"
+      }
+    },
+    "recusals": {
+      "title": "Recusals",
+      "description": "Members who stepped aside from the item, and why.",
+      "type": "array",
+      "items": {
+        "title": "Recusal",
+        "description": "One member's recusal.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "memberId",
+          "reason"
+        ],
+        "properties": {
+          "memberId": {
+            "$ref": "common.schema.json#/$defs/identifier",
+            "description": "The member's id in members."
+          },
+          "reason": {
+            "title": "Reason",
+            "description": "financial-interest, family-relationship, employment, prior-involvement, appearance-of-conflict or other.",
+            "type": "string",
+            "enum": [
+              "financial-interest",
+              "family-relationship",
+              "employment",
+              "prior-involvement",
+              "appearance-of-conflict",
+              "other"
+            ]
+          },
+          "detail": {
+            "title": "Detail",
+            "description": "The disclosure, as stated on the record.",
+            "type": "string",
+            "maxLength": 4000
+          },
+          "disclosedAt": {
+            "$ref": "common.schema.json#/$defs/dateTime",
+            "description": "When the conflict was disclosed."
+          },
+          "leftRoom": {
+            "title": "Left the room",
+            "description": "Whether the member left during discussion and vote.",
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "outcome": {
+      "title": "Outcome",
+      "description": "What the body decided on the item.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result"
+      ],
+      "properties": {
+        "result": {
+          "title": "Result",
+          "description": "approved, approved-as-amended, denied, continued, referred, tabled, received-and-filed or no-action.",
+          "type": "string",
+          "enum": [
+            "approved",
+            "approved-as-amended",
+            "denied",
+            "continued",
+            "referred",
+            "tabled",
+            "received-and-filed",
+            "no-action"
+          ]
+        },
+        "actionNumber": {
+          "title": "Action number",
+          "description": "The resolution, ordinance or minute order number assigned.",
+          "type": "string",
+          "maxLength": 100
+        },
+        "effectiveOn": {
+          "$ref": "common.schema.json#/$defs/date",
+          "description": "When the action takes effect."
+        },
+        "continuedTo": {
+          "$ref": "common.schema.json#/$defs/date",
+          "description": "The date the item was continued to, if continued."
+        },
+        "summary": {
+          "title": "Summary",
+          "description": "The decision in plain words, as it will appear in the minutes.",
+          "type": "string",
+          "maxLength": 8000
+        }
+      }
+    },
+    "minutes": {
+      "title": "Minutes",
+      "description": "The state of the minutes that record this action.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "title": "Status",
+          "description": "draft, approved or published.",
+          "type": "string",
+          "enum": [
+            "draft",
+            "approved",
+            "published"
+          ]
+        },
+        "approvedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When the minutes were approved."
+        },
+        "uri": {
+          "title": "Location",
+          "description": "Where the published minutes can be read.",
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "status": {
+      "title": "Status",
+      "description": "scheduled, in-progress, decided, minutes-approved or withdrawn.",
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in-progress",
+        "decided",
+        "minutes-approved",
+        "withdrawn"
+      ]
+    },
+    "statusHistory": {
+      "title": "Status history",
+      "description": "Every status the record has had, oldest first.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/statusChange"
+      }
+    },
+    "attachments": {
+      "title": "Attachments",
+      "description": "Files that belong to the item: staff reports, draft resolutions, presentations.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/attachment"
+      }
+    },
+    "auditTrail": {
+      "title": "Audit trail",
+      "description": "Recorded actions on the record, oldest first.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/auditEntry"
+      }
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions",
+      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>."
+    }
+  },
+  "$defs": {
+    "motion": {
+      "title": "Motion",
+      "description": "A motion, its second, the vote and the result.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "text",
+        "movedBy",
+        "result"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "Identifier for the motion, unique within the record."
+        },
+        "kind": {
+          "title": "Kind",
+          "description": "main, amend, substitute, refer, postpone, table, take-from-table, reconsider, rescind or other.",
+          "type": "string",
+          "enum": [
+            "main",
+            "amend",
+            "substitute",
+            "refer",
+            "postpone",
+            "table",
+            "take-from-table",
+            "reconsider",
+            "rescind",
+            "other"
+          ]
+        },
+        "text": {
+          "title": "Text",
+          "description": "The motion as stated.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20000
+        },
+        "appliesToMotionId": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "The motion this one applies to (for amendments, referrals and other secondary motions)."
+        },
+        "movedBy": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "The member id of the mover."
+        },
+        "secondedBy": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "The member id of the seconder."
+        },
+        "voteMethod": {
+          "title": "Vote method",
+          "description": "voice, roll-call, show-of-hands, ballot, electronic or unanimous-consent.",
+          "type": "string",
+          "enum": [
+            "voice",
+            "roll-call",
+            "show-of-hands",
+            "ballot",
+            "electronic",
+            "unanimous-consent"
+          ]
+        },
+        "threshold": {
+          "title": "Threshold",
+          "description": "The vote needed to adopt: majority-of-votes-cast, majority-of-members, two-thirds-of-votes-cast, two-thirds-of-members, unanimous or other.",
+          "type": "string",
+          "enum": [
+            "majority-of-votes-cast",
+            "majority-of-members",
+            "two-thirds-of-votes-cast",
+            "two-thirds-of-members",
+            "unanimous",
+            "other"
+          ]
+        },
+        "votes": {
+          "title": "Votes",
+          "description": "Each member's vote. Members who were absent or recused are listed with that value so the record is complete.",
+          "type": "array",
+          "items": {
+            "title": "Vote",
+            "description": "One member's vote.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "memberId",
+              "vote"
+            ],
+            "properties": {
+              "memberId": {
+                "$ref": "common.schema.json#/$defs/identifier",
+                "description": "The member's id in members."
+              },
+              "vote": {
+                "title": "Vote",
+                "description": "yes, no, abstain, absent or recused.",
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "abstain",
+                  "absent",
+                  "recused"
+                ]
+              }
+            }
+          }
+        },
+        "tally": {
+          "title": "Tally",
+          "description": "The counted result. Must match the individual votes when they are given.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "yes",
+            "no"
+          ],
+          "properties": {
+            "yes": {
+              "title": "Yes",
+              "description": "Votes in favor.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "no": {
+              "title": "No",
+              "description": "Votes against.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "abstain": {
+              "title": "Abstain",
+              "description": "Abstentions.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "absent": {
+              "title": "Absent",
+              "description": "Members absent for the vote.",
+              "type": "integer",
+              "minimum": 0
+            },
+            "recused": {
+              "title": "Recused",
+              "description": "Members recused from the vote.",
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "result": {
+          "title": "Result",
+          "description": "adopted, failed, withdrawn, ruled-out-of-order, died-for-lack-of-second, tabled, postponed or referred.",
+          "type": "string",
+          "enum": [
+            "adopted",
+            "failed",
+            "withdrawn",
+            "ruled-out-of-order",
+            "died-for-lack-of-second",
+            "tabled",
+            "postponed",
+            "referred"
+          ]
+        },
+        "decidedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When the decision was made."
+        }
+      }
+    }
+  }
+}

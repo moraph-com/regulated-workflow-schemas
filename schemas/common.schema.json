@@ -1,0 +1,464 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/common.schema.json",
+  "title": "Common definitions",
+  "description": "Building blocks shared by every record format in this repository: identifiers, people and organizations, money, places, attachments, status history, audit trail and extensions.",
+  "$defs": {
+    "identifier": {
+      "title": "Identifier",
+      "description": "A stable identifier for a record or an item inside one. Letters, digits and . _ : - only, starting with a letter or digit, up to 128 characters. UUIDs and ULIDs both fit.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "externalId": {
+      "title": "External identifier",
+      "description": "An identifier assigned by another system or registry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "properties": {
+        "scheme": {
+          "title": "Scheme",
+          "description": "The registry or system that assigned the value, for example LEI, EIN, DUNS, UEI, company-number, NPI, or a source system's name.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "value": {
+          "title": "Value",
+          "description": "The identifier as the scheme writes it.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "date": {
+      "title": "Date",
+      "description": "A calendar date (RFC 3339 full-date, YYYY-MM-DD).",
+      "type": "string",
+      "format": "date"
+    },
+    "dateTime": {
+      "title": "Date and time",
+      "description": "An instant with a time-zone offset (RFC 3339 date-time), for example 2026-03-04T15:20:00Z.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "countryCode": {
+      "title": "Country code",
+      "description": "ISO 3166-1 alpha-2 country code, upper case.",
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "subdivisionCode": {
+      "title": "Subdivision code",
+      "description": "ISO 3166-2 subdivision code, for example US-CA or GB-ENG.",
+      "type": "string",
+      "pattern": "^[A-Z]{2}-[A-Z0-9]{1,3}$"
+    },
+    "currencyCode": {
+      "title": "Currency code",
+      "description": "ISO 4217 alphabetic currency code, upper case.",
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "money": {
+      "title": "Money",
+      "description": "An amount of money. The amount is a decimal string so no precision is lost to floating point.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "amount"
+      ],
+      "properties": {
+        "currency": {
+          "$ref": "#/$defs/currencyCode",
+          "description": "The currency."
+        },
+        "amount": {
+          "title": "Amount",
+          "description": "Decimal amount in the currency's major unit, as a string, for example \"1250.00\" or \"-15.5\".",
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        }
+      }
+    },
+    "email": {
+      "title": "Email address",
+      "description": "An email address.",
+      "type": "string",
+      "format": "email",
+      "maxLength": 254
+    },
+    "personRef": {
+      "title": "Person",
+      "description": "A person acting in a role on the record. Give an id when the person exists in another system; the name is what people read.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier",
+          "description": "Identifier in the system the reference comes from."
+        },
+        "name": {
+          "title": "Name",
+          "description": "The person's name as it should appear on the record.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "title": {
+          "title": "Title",
+          "description": "Job title or position, for example Chief Risk Officer.",
+          "type": "string",
+          "maxLength": 200
+        },
+        "organization": {
+          "title": "Organization",
+          "description": "The organization the person acts for, by name.",
+          "type": "string",
+          "maxLength": 200
+        },
+        "email": {
+          "$ref": "#/$defs/email",
+          "description": "Email address."
+        },
+        "phone": {
+          "title": "Phone",
+          "description": "Phone number, ideally in E.164 form (+15555550123).",
+          "type": "string",
+          "maxLength": 40
+        }
+      }
+    },
+    "organizationRef": {
+      "title": "Organization",
+      "description": "An organization: a company, agency, facility operator or other legal entity.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier",
+          "description": "Identifier in the system the reference comes from."
+        },
+        "name": {
+          "title": "Name",
+          "description": "The name the organization trades under.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "legalName": {
+          "title": "Legal name",
+          "description": "The registered legal name, when it differs from the name.",
+          "type": "string",
+          "maxLength": 300
+        },
+        "identifiers": {
+          "title": "Identifiers",
+          "description": "Registry identifiers such as LEI, EIN, DUNS or UEI.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalId"
+          }
+        },
+        "country": {
+          "$ref": "#/$defs/countryCode",
+          "description": "Country."
+        },
+        "website": {
+          "title": "Website",
+          "description": "The organization's public website.",
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "address": {
+      "title": "Postal address",
+      "description": "A postal address.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lines",
+        "country"
+      ],
+      "properties": {
+        "lines": {
+          "title": "Street lines",
+          "description": "Street address lines, most specific first.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "locality": {
+          "title": "Locality",
+          "description": "City, town or village.",
+          "type": "string",
+          "maxLength": 100
+        },
+        "region": {
+          "title": "Region",
+          "description": "State, province or county as written locally.",
+          "type": "string",
+          "maxLength": 100
+        },
+        "postalCode": {
+          "title": "Postal code",
+          "description": "ZIP or postal code.",
+          "type": "string",
+          "maxLength": 20
+        },
+        "country": {
+          "$ref": "#/$defs/countryCode",
+          "description": "Country."
+        }
+      }
+    },
+    "geoPoint": {
+      "title": "Geographic point",
+      "description": "A WGS 84 latitude and longitude in decimal degrees.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "properties": {
+        "latitude": {
+          "title": "Latitude",
+          "description": "Decimal degrees, -90 to 90.",
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "title": "Longitude",
+          "description": "Decimal degrees, -180 to 180.",
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        }
+      }
+    },
+    "jurisdiction": {
+      "title": "Jurisdiction",
+      "description": "Where a rule applies or an authority acts: a country, optionally narrowed to an ISO 3166-2 subdivision and a named locality.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "country"
+      ],
+      "properties": {
+        "country": {
+          "$ref": "#/$defs/countryCode",
+          "description": "Country."
+        },
+        "subdivision": {
+          "$ref": "#/$defs/subdivisionCode",
+          "description": "State, province or other ISO 3166-2 subdivision."
+        },
+        "locality": {
+          "title": "Locality",
+          "description": "City, county or district name, as the authority writes it.",
+          "type": "string",
+          "maxLength": 200
+        },
+        "authority": {
+          "title": "Authority",
+          "description": "The agency or body with jurisdiction, for example Department of Building Safety.",
+          "type": "string",
+          "maxLength": 200
+        }
+      }
+    },
+    "attachment": {
+      "title": "Attachment",
+      "description": "A document or file that belongs to the record. The SHA-256 digest lets anyone confirm the file they hold is the one the record refers to.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "mediaType",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier",
+          "description": "Identifier in the system the reference comes from."
+        },
+        "title": {
+          "title": "Title",
+          "description": "What the file is, in a few words.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "mediaType": {
+          "title": "Media type",
+          "description": "IANA media type, for example application/pdf.",
+          "type": "string",
+          "pattern": "^[a-z]+/[A-Za-z0-9.+-]+$"
+        },
+        "sha256": {
+          "title": "SHA-256",
+          "description": "Lower-case hex SHA-256 digest of the file's bytes.",
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "byteSize": {
+          "title": "Size in bytes",
+          "description": "The file's size in bytes.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "uri": {
+          "title": "Location",
+          "description": "Where an authorized reader can fetch the file. Records shared outside the organization should not carry links that grant access by themselves.",
+          "type": "string",
+          "format": "uri"
+        },
+        "classification": {
+          "title": "Classification",
+          "description": "How the file may be shared: public, internal, confidential or restricted.",
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "confidential",
+            "restricted"
+          ]
+        },
+        "addedAt": {
+          "$ref": "#/$defs/dateTime",
+          "description": "When the file was added."
+        }
+      }
+    },
+    "attachmentIds": {
+      "title": "Attachment ids",
+      "description": "Ids of entries in the record's attachments list.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/identifier"
+      },
+      "uniqueItems": true
+    },
+    "statusChange": {
+      "title": "Status change",
+      "description": "One change of the record's status.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "at"
+      ],
+      "properties": {
+        "status": {
+          "title": "Status",
+          "description": "The status the record moved to (one of the record's status values).",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "at": {
+          "$ref": "#/$defs/dateTime",
+          "description": "When it happened."
+        },
+        "by": {
+          "$ref": "#/$defs/personRef",
+          "description": "Who made the change."
+        },
+        "reason": {
+          "title": "Reason",
+          "description": "Why the status changed.",
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "auditEntry": {
+      "title": "Audit entry",
+      "description": "One recorded action on the record: who did what, when. Systems append entries and never rewrite them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "actor",
+        "action"
+      ],
+      "properties": {
+        "at": {
+          "$ref": "#/$defs/dateTime",
+          "description": "When it happened."
+        },
+        "actor": {
+          "$ref": "#/$defs/personRef",
+          "description": "Who acted."
+        },
+        "action": {
+          "title": "Action",
+          "description": "What happened, as a short verb phrase, for example created, field-changed, approved, exported.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "field": {
+          "title": "Field",
+          "description": "JSON Pointer (RFC 6901) to the field that changed, when one did.",
+          "type": "string",
+          "maxLength": 300
+        },
+        "from": {
+          "title": "Previous value",
+          "description": "The previous value, as text. Leave out for sensitive fields.",
+          "type": "string",
+          "maxLength": 2000
+        },
+        "to": {
+          "title": "New value",
+          "description": "The new value, as text. Leave out for sensitive fields.",
+          "type": "string",
+          "maxLength": 2000
+        },
+        "note": {
+          "title": "Note",
+          "description": "Free-text context for the action.",
+          "type": "string",
+          "maxLength": 2000
+        },
+        "system": {
+          "title": "System",
+          "description": "The application that recorded the action.",
+          "type": "string",
+          "maxLength": 200
+        }
+      }
+    },
+    "extensions": {
+      "title": "Extensions",
+      "description": "Fields this format doesn't define, for local needs. Keys are namespaced as <namespace>:<field> (for example acme:costCenter) so extensions from different organizations never collide. Readers that don't know a key ignore it.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9][a-z0-9-]{0,40}:[A-Za-z0-9_.-]{1,80}$"
+      }
+    }
+  }
+}

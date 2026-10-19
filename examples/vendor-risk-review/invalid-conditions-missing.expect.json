@@ -1,0 +1,8 @@
+{
+  "reason": "An approval with conditions must list the conditions.",
+  "expect": {
+    "source": "schema",
+    "keyword": "required",
+    "path": "/decision"
+  }
+}

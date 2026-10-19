@@ -1,0 +1,8 @@
+{
+  "reason": "Money amounts are decimal strings so precision is never lost.",
+  "expect": {
+    "source": "schema",
+    "keyword": "type",
+    "path": "/fees/0/amount/amount"
+  }
+}

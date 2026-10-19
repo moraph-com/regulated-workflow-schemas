@@ -1,0 +1,59 @@
+name: Propose a field or format
+description: Suggest a new field, enum value, rule or record format.
+labels: [proposal]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What are you proposing?
+      options:
+        - A new field
+        - A new enum value
+        - A new cross-field rule
+        - A change to an existing field
+        - A new record format
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: Which format?
+      options:
+        - vendor-risk-review
+        - patient-safety-incident
+        - permit-application
+        - board-action
+        - common definitions
+        - a new format
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: The workflow and who needs it
+      description: What happens in practice, and who reads or relies on this data (staff, auditors, regulators, the public)?
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Standard, rule or practice
+      description: Link the public standard, regulation, guidance or common practice behind the proposal.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example
+      description: A realistic, fictional example value or record fragment. Never paste real records.
+      render: json
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Could this make a currently valid record invalid?
+      options:
+        - "No"
+        - "Yes"
+        - Not sure
+    validations:
+      required: true

@@ -1,0 +1,8 @@
+{
+  "reason": "Every submitted document must point at an entry in attachments.",
+  "expect": {
+    "source": "rule",
+    "keyword": "attachment-exists",
+    "path": "/documents/0/attachmentId"
+  }
+}

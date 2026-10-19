@@ -1,0 +1,147 @@
+{
+  "$schema": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/patient-safety-incident.schema.json",
+  "recordType": "patient-safety-incident",
+  "schemaVersion": "0.1.0",
+  "id": "PSI-2026-00871",
+  "createdAt": "2026-05-09T03:22:00Z",
+  "facility": {
+    "name": "Riverbend General Hospital (fictional)",
+    "type": "hospital",
+    "jurisdiction": {
+      "country": "US",
+      "subdivision": "US-OR"
+    }
+  },
+  "event": {
+    "occurredAt": "2026-05-09T02:40:00Z",
+    "occurredAtPrecision": "approximate",
+    "discoveredAt": "2026-05-09T02:55:00Z",
+    "location": {
+      "type": "inpatient-unit",
+      "unit": "4 West Medical",
+      "detail": "Patient bathroom"
+    }
+  },
+  "eventType": "incident",
+  "eventCategory": "fall",
+  "eventSubcategory": "Unassisted fall while toileting",
+  "description": "Patient found on bathroom floor after getting up without calling for help. Bed alarm was on but not audible at the nurses' station. Patient alert and reported hitting the left hip.",
+  "patient": {
+    "ageBand": "adult-65-84",
+    "sex": "female",
+    "encounterRef": "enc-7f3c91",
+    "name": "Pat Example"
+  },
+  "reachedPatient": true,
+  "harm": {
+    "level": "mild-harm",
+    "duration": "temporary",
+    "additionalTreatment": true,
+    "assessedAt": "2026-05-09T09:00:00Z",
+    "assessedBy": {
+      "name": "Casey Example",
+      "title": "Hospitalist"
+    }
+  },
+  "contributingFactors": [
+    {
+      "category": "equipment-or-device",
+      "detail": "Bed alarm volume had been turned down and the setting was not visible from the hallway."
+    },
+    {
+      "category": "staffing",
+      "detail": "One nurse covering two pods during a break."
+    }
+  ],
+  "immediateActions": [
+    {
+      "action": "Assessed patient, assisted back to bed, notified provider; hip X-ray ordered (negative).",
+      "takenAt": "2026-05-09T03:05:00Z",
+      "takenByRole": "Charge nurse"
+    },
+    {
+      "action": "Checked alarm volume on all beds on the unit.",
+      "takenAt": "2026-05-09T04:00:00Z",
+      "takenByRole": "Charge nurse"
+    }
+  ],
+  "reporter": {
+    "anonymous": false,
+    "role": "nurse",
+    "contact": {
+      "name": "Riley Sample",
+      "title": "RN"
+    },
+    "reportedAt": "2026-05-09T03:22:00Z",
+    "wantsFeedback": true
+  },
+  "notifications": [
+    {
+      "recipient": "attending-clinician",
+      "notifiedAt": "2026-05-09T03:00:00Z",
+      "method": "phone"
+    },
+    {
+      "recipient": "patient-or-family",
+      "notifiedAt": "2026-05-09T10:30:00Z",
+      "method": "in-person",
+      "requiredByRule": true,
+      "ruleReference": "Hospital disclosure policy PS-12"
+    }
+  ],
+  "investigation": {
+    "method": "apparent-cause-analysis",
+    "lead": {
+      "name": "Taylor Example",
+      "title": "Patient Safety Officer"
+    },
+    "startedAt": "2026-05-11T15:00:00Z",
+    "completedAt": "2026-05-20T18:00:00Z",
+    "summary": "Alarm volume could be lowered without a visible indicator.",
+    "causes": [
+      "Bed alarm volume could be set below audible level with no indication at the station."
+    ],
+    "actions": [
+      {
+        "action": "Lock minimum alarm volume in bed configuration across all units.",
+        "strength": "stronger",
+        "owner": {
+          "name": "Clinical Engineering lead"
+        },
+        "dueDate": "2026-06-30",
+        "status": "in-progress",
+        "measure": "Monthly audit of 20 beds finds no alarms below minimum."
+      },
+      {
+        "action": "Add alarm volume check to hourly rounding.",
+        "strength": "weaker",
+        "status": "complete"
+      }
+    ]
+  },
+  "psoSubmission": {
+    "submitted": true,
+    "organization": "Example Patient Safety Organization",
+    "submittedAt": "2026-05-25T12:00:00Z",
+    "commonFormatsVersion": "Hospital 2.0"
+  },
+  "status": "action-plan",
+  "statusHistory": [
+    {
+      "status": "submitted",
+      "at": "2026-05-09T03:22:00Z"
+    },
+    {
+      "status": "triaged",
+      "at": "2026-05-09T13:00:00Z"
+    },
+    {
+      "status": "under-investigation",
+      "at": "2026-05-11T15:00:00Z"
+    },
+    {
+      "status": "action-plan",
+      "at": "2026-05-20T18:00:00Z"
+    }
+  ]
+}

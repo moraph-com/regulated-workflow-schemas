@@ -1,0 +1,765 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/vendor-risk-review.schema.json",
+  "title": "Vendor risk review",
+  "description": "One review of a third-party relationship: what the vendor provides, what data and access it has, how critical it is, the inherent and residual risk, the assessments performed, findings and their remediation, the review cadence and the approval decision. Informed by the US interagency guidance on third-party relationships (OCC Bulletin 2023-17), NIST SP 800-161 Rev. 1 and ISO/IEC 27036.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recordType",
+    "schemaVersion",
+    "id",
+    "vendor",
+    "services",
+    "criticality",
+    "status"
+  ],
+  "properties": {
+    "$schema": {
+      "title": "Schema",
+      "description": "The $id of this schema, so readers can tell what the record is.",
+      "type": "string",
+      "format": "uri"
+    },
+    "recordType": {
+      "title": "Record type",
+      "description": "Always vendor-risk-review.",
+      "const": "vendor-risk-review"
+    },
+    "schemaVersion": {
+      "title": "Schema version",
+      "description": "The version of this format the record follows.",
+      "const": "0.1.0"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/identifier",
+      "description": "This review's identifier, unique within the system that created it."
+    },
+    "externalIds": {
+      "title": "External identifiers",
+      "description": "Ids for this review in other systems (GRC tool, procurement, contract repository).",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/externalId"
+      }
+    },
+    "createdAt": {
+      "$ref": "common.schema.json#/$defs/dateTime",
+      "description": "When the record was created."
+    },
+    "updatedAt": {
+      "$ref": "common.schema.json#/$defs/dateTime",
+      "description": "When the record was last changed."
+    },
+    "reviewingOrganization": {
+      "$ref": "common.schema.json#/$defs/organizationRef",
+      "description": "The organization doing the review."
+    },
+    "vendor": {
+      "$ref": "common.schema.json#/$defs/organizationRef",
+      "description": "The third party under review."
+    },
+    "relationshipOwner": {
+      "$ref": "common.schema.json#/$defs/personRef",
+      "description": "The person accountable for the relationship inside the organization."
+    },
+    "lifecycleStage": {
+      "title": "Lifecycle stage",
+      "description": "Where the relationship is in the third-party risk life cycle: planning, due-diligence (before contract), contract-negotiation, ongoing-monitoring or termination.",
+      "type": "string",
+      "enum": [
+        "planning",
+        "due-diligence",
+        "contract-negotiation",
+        "ongoing-monitoring",
+        "termination"
+      ]
+    },
+    "services": {
+      "title": "Services",
+      "description": "What the vendor provides under the relationship.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "title": "Service",
+        "description": "One service or product the vendor provides.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "description": "The service's name.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "title": "Description",
+            "description": "What the service does for the organization.",
+            "type": "string",
+            "maxLength": 4000
+          },
+          "supportsCriticalActivity": {
+            "title": "Supports a critical activity",
+            "description": "Whether the service supports an activity whose failure would significantly harm the organization or its customers.",
+            "type": "boolean"
+          },
+          "startDate": {
+            "$ref": "common.schema.json#/$defs/date",
+            "description": "When the service started."
+          },
+          "endDate": {
+            "$ref": "common.schema.json#/$defs/date",
+            "description": "When the service ends or ended."
+          },
+          "contractRef": {
+            "title": "Contract reference",
+            "description": "The contract or order that covers the service.",
+            "type": "string",
+            "maxLength": 200
+          },
+          "annualSpend": {
+            "$ref": "common.schema.json#/$defs/money",
+            "description": "Expected or actual spend per year."
+          }
+        }
+      }
+    },
+    "dataCategories": {
+      "title": "Data categories",
+      "description": "The kinds of data the vendor stores, processes or can reach. Use none when it has no access to the organization's data.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "none",
+          "public",
+          "internal",
+          "confidential",
+          "personal-data",
+          "sensitive-personal-data",
+          "nonpublic-personal-information",
+          "protected-health-information",
+          "payment-card-data",
+          "controlled-unclassified-information",
+          "authentication-credentials",
+          "source-code"
+        ]
+      }
+    },
+    "access": {
+      "title": "Access",
+      "description": "How the vendor reaches the organization's systems and data.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "systemAccess": {
+          "title": "System access",
+          "description": "The highest level of access the vendor has to the organization's systems: none, read, read-write or administrative.",
+          "type": "string",
+          "enum": [
+            "none",
+            "read",
+            "read-write",
+            "administrative"
+          ]
+        },
+        "hostsData": {
+          "title": "Hosts data",
+          "description": "Whether the vendor stores the organization's data on infrastructure it controls.",
+          "type": "boolean"
+        },
+        "dataLocations": {
+          "title": "Data locations",
+          "description": "Countries where the vendor stores or processes the data.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/countryCode"
+          }
+        },
+        "subcontractors": {
+          "title": "Subcontractors",
+          "description": "The vendor's own suppliers that touch the service or data (fourth parties).",
+          "type": "array",
+          "items": {
+            "title": "Subcontractor",
+            "description": "One fourth party.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The subcontractor's name.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "service": {
+                "title": "Service",
+                "description": "What the subcontractor does for the vendor.",
+                "type": "string",
+                "maxLength": 500
+              },
+              "country": {
+                "$ref": "common.schema.json#/$defs/countryCode",
+                "description": "Where the subcontractor is based."
+              }
+            }
+          }
+        }
+      }
+    },
+    "criticality": {
+      "title": "Criticality",
+      "description": "How much the organization depends on the relationship: low, moderate, high or critical. Critical relationships support critical activities.",
+      "type": "string",
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "criticalityRationale": {
+      "title": "Criticality rationale",
+      "description": "Why the relationship has that criticality.",
+      "type": "string",
+      "maxLength": 4000
+    },
+    "inherentRisk": {
+      "$ref": "#/$defs/riskRating",
+      "description": "Risk before the vendor's and the organization's controls are taken into account."
+    },
+    "residualRisk": {
+      "$ref": "#/$defs/riskRating",
+      "description": "Risk remaining after controls."
+    },
+    "riskDomains": {
+      "title": "Risk by domain",
+      "description": "Inherent and residual risk for each risk domain that was assessed.",
+      "type": "array",
+      "items": {
+        "title": "Domain rating",
+        "description": "Risk in one domain.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "domain",
+          "inherent"
+        ],
+        "properties": {
+          "domain": {
+            "$ref": "#/$defs/riskDomain",
+            "description": "The risk domain."
+          },
+          "inherent": {
+            "$ref": "#/$defs/riskLevel",
+            "description": "Inherent risk in this domain."
+          },
+          "residual": {
+            "$ref": "#/$defs/riskLevel",
+            "description": "Residual risk in this domain."
+          },
+          "rationale": {
+            "title": "Rationale",
+            "description": "What drives the rating, including controls that reduce it.",
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      }
+    },
+    "assessments": {
+      "title": "Assessments",
+      "description": "Due-diligence and monitoring activities performed for this review.",
+      "type": "array",
+      "items": {
+        "title": "Assessment",
+        "description": "One assessment activity.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/identifier",
+            "description": "Identifier for this item, unique within the record."
+          },
+          "type": {
+            "title": "Type",
+            "description": "questionnaire, document-review, independent-report-review (for example a SOC report or certificate), onsite-visit, remote-assessment, financial-review, penetration-test-review, continuous-monitoring or other.",
+            "type": "string",
+            "enum": [
+              "questionnaire",
+              "document-review",
+              "independent-report-review",
+              "onsite-visit",
+              "remote-assessment",
+              "financial-review",
+              "penetration-test-review",
+              "continuous-monitoring",
+              "other"
+            ]
+          },
+          "description": {
+            "title": "Description",
+            "description": "What was assessed and how.",
+            "type": "string",
+            "maxLength": 4000
+          },
+          "evidenceName": {
+            "title": "Evidence name",
+            "description": "The report, certificate or questionnaire reviewed, as named by its issuer, for example 'SOC 2 Type II report' or 'ISO/IEC 27001 certificate'.",
+            "type": "string",
+            "maxLength": 300
+          },
+          "periodStart": {
+            "$ref": "common.schema.json#/$defs/date",
+            "description": "Start of the period the evidence covers."
+          },
+          "periodEnd": {
+            "$ref": "common.schema.json#/$defs/date",
+            "description": "End of the period the evidence covers."
+          },
+          "performedBy": {
+            "$ref": "common.schema.json#/$defs/personRef",
+            "description": "Who performed the assessment."
+          },
+          "completedAt": {
+            "$ref": "common.schema.json#/$defs/dateTime",
+            "description": "When it was completed."
+          },
+          "result": {
+            "title": "Result",
+            "description": "satisfactory, satisfactory-with-findings, unsatisfactory or inconclusive.",
+            "type": "string",
+            "enum": [
+              "satisfactory",
+              "satisfactory-with-findings",
+              "unsatisfactory",
+              "inconclusive"
+            ]
+          },
+          "attachmentIds": {
+            "$ref": "common.schema.json#/$defs/attachmentIds",
+            "description": "Ids of related entries in the record's attachments."
+          }
+        }
+      }
+    },
+    "findings": {
+      "title": "Findings",
+      "description": "Issues found during the review and what is being done about them.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "reviewCadence": {
+      "title": "Review cadence",
+      "description": "How often the relationship is reviewed, and when the next review is due.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frequency"
+      ],
+      "properties": {
+        "frequency": {
+          "title": "Frequency",
+          "description": "monthly, quarterly, semiannual, annual, biennial or event-driven.",
+          "type": "string",
+          "enum": [
+            "monthly",
+            "quarterly",
+            "semiannual",
+            "annual",
+            "biennial",
+            "event-driven"
+          ]
+        },
+        "lastReviewedOn": {
+          "$ref": "common.schema.json#/$defs/date",
+          "description": "When the last review was completed."
+        },
+        "nextReviewDue": {
+          "$ref": "common.schema.json#/$defs/date",
+          "description": "When the next scheduled review is due."
+        },
+        "triggers": {
+          "title": "Event triggers",
+          "description": "Events that prompt a review outside the schedule, for example a breach notice, change of control or material service change.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 300
+          }
+        }
+      }
+    },
+    "decision": {
+      "title": "Decision",
+      "description": "The outcome of the review.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome"
+      ],
+      "properties": {
+        "outcome": {
+          "title": "Outcome",
+          "description": "approved, approved-with-conditions, rejected, deferred or terminate-relationship.",
+          "type": "string",
+          "enum": [
+            "approved",
+            "approved-with-conditions",
+            "rejected",
+            "deferred",
+            "terminate-relationship"
+          ]
+        },
+        "conditions": {
+          "title": "Conditions",
+          "description": "Conditions attached to the approval.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "decidedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime",
+          "description": "When the decision was made."
+        },
+        "rationale": {
+          "title": "Rationale",
+          "description": "Why the decision was made.",
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "approved-with-conditions"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "conditions"
+        ],
+        "properties": {
+          "conditions": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "approvals": {
+      "title": "Approvals",
+      "description": "Sign-offs on the decision, in order.",
+      "type": "array",
+      "items": {
+        "title": "Approval",
+        "description": "One person's sign-off.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "approver",
+          "decision",
+          "at"
+        ],
+        "properties": {
+          "approver": {
+            "$ref": "common.schema.json#/$defs/personRef",
+            "description": "Who signed off."
+          },
+          "capacity": {
+            "title": "Capacity",
+            "description": "The role in which the person approves, for example business owner, CISO, third-party risk committee.",
+            "type": "string",
+            "maxLength": 200
+          },
+          "decision": {
+            "title": "Decision",
+            "description": "approved, rejected or abstained.",
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected",
+              "abstained"
+            ]
+          },
+          "at": {
+            "$ref": "common.schema.json#/$defs/dateTime",
+            "description": "When."
+          },
+          "comment": {
+            "title": "Comment",
+            "description": "What the approver said.",
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      }
+    },
+    "status": {
+      "title": "Status",
+      "description": "draft, in-review, pending-approval, approved, rejected or closed.",
+      "type": "string",
+      "enum": [
+        "draft",
+        "in-review",
+        "pending-approval",
+        "approved",
+        "rejected",
+        "closed"
+      ]
+    },
+    "statusHistory": {
+      "title": "Status history",
+      "description": "Every status the record has had, oldest first.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/statusChange"
+      }
+    },
+    "attachments": {
+      "title": "Attachments",
+      "description": "Files that belong to the review: reports, questionnaires, contracts.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/attachment"
+      }
+    },
+    "auditTrail": {
+      "title": "Audit trail",
+      "description": "Recorded actions on the review, oldest first.",
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/auditEntry"
+      }
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions",
+      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>."
+    }
+  },
+  "$defs": {
+    "riskLevel": {
+      "title": "Risk level",
+      "description": "low, moderate, high or critical.",
+      "type": "string",
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "riskDomain": {
+      "title": "Risk domain",
+      "description": "information-security, privacy, operational-resilience, business-continuity, financial, compliance, legal, reputational, concentration, strategic, geographic or environmental-social.",
+      "type": "string",
+      "enum": [
+        "information-security",
+        "privacy",
+        "operational-resilience",
+        "business-continuity",
+        "financial",
+        "compliance",
+        "legal",
+        "reputational",
+        "concentration",
+        "strategic",
+        "geographic",
+        "environmental-social"
+      ]
+    },
+    "riskRating": {
+      "title": "Risk rating",
+      "description": "An overall risk rating with the reasoning behind it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level"
+      ],
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/riskLevel",
+          "description": "The overall level: low, moderate, high or critical."
+        },
+        "score": {
+          "title": "Score",
+          "description": "A numeric score on the organization's own scale, if it uses one.",
+          "type": "number"
+        },
+        "method": {
+          "title": "Method",
+          "description": "The scoring method or model used.",
+          "type": "string",
+          "maxLength": 200
+        },
+        "rationale": {
+          "title": "Rationale",
+          "description": "Why the rating is what it is.",
+          "type": "string",
+          "maxLength": 4000
+        }
+      }
+    },
+    "finding": {
+      "title": "Finding",
+      "description": "An issue found during the review.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "severity",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "Identifier for the finding, unique within the review."
+        },
+        "title": {
+          "title": "Title",
+          "description": "The issue in one line.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "description": {
+          "title": "Description",
+          "description": "What was found and why it matters.",
+          "type": "string",
+          "maxLength": 8000
+        },
+        "domain": {
+          "$ref": "#/$defs/riskDomain",
+          "description": "The risk domain."
+        },
+        "severity": {
+          "title": "Severity",
+          "description": "low, medium, high or critical.",
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "assessmentId": {
+          "$ref": "common.schema.json#/$defs/identifier",
+          "description": "The assessment that raised the finding."
+        },
+        "status": {
+          "title": "Status",
+          "description": "open, remediation-planned, in-remediation, remediated, risk-accepted or closed.",
+          "type": "string",
+          "enum": [
+            "open",
+            "remediation-planned",
+            "in-remediation",
+            "remediated",
+            "risk-accepted",
+            "closed"
+          ]
+        },
+        "remediation": {
+          "title": "Remediation",
+          "description": "The plan to fix the issue.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plan": {
+              "title": "Plan",
+              "description": "What will be done.",
+              "type": "string",
+              "maxLength": 8000
+            },
+            "owner": {
+              "$ref": "common.schema.json#/$defs/personRef",
+              "description": "Who is responsible."
+            },
+            "dueDate": {
+              "$ref": "common.schema.json#/$defs/date",
+              "description": "When it is due."
+            },
+            "completedAt": {
+              "$ref": "common.schema.json#/$defs/dateTime",
+              "description": "When it was completed."
+            },
+            "verifiedBy": {
+              "$ref": "common.schema.json#/$defs/personRef",
+              "description": "Who confirmed the fix works."
+            }
+          }
+        },
+        "riskAcceptance": {
+          "title": "Risk acceptance",
+          "description": "A documented decision to accept the risk instead of fixing it. Required when status is risk-accepted.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "acceptedBy",
+            "acceptedAt",
+            "rationale"
+          ],
+          "properties": {
+            "acceptedBy": {
+              "$ref": "common.schema.json#/$defs/personRef",
+              "description": "Who accepted the risk."
+            },
+            "acceptedAt": {
+              "$ref": "common.schema.json#/$defs/dateTime",
+              "description": "When the risk was accepted."
+            },
+            "expiresOn": {
+              "$ref": "common.schema.json#/$defs/date",
+              "description": "When it expires."
+            },
+            "rationale": {
+              "title": "Rationale",
+              "description": "Why the risk is accepted, and any compensating controls.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8000
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "risk-accepted"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "riskAcceptance"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

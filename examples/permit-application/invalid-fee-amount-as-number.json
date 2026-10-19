@@ -1,0 +1,43 @@
+{
+  "recordType": "permit-application",
+  "schemaVersion": "0.1.0",
+  "id": "ROW-2026-0090",
+  "jurisdiction": {
+    "country": "GB",
+    "subdivision": "GB-ENG",
+    "locality": "Example Borough Council (fictional)",
+    "authority": "Highways"
+  },
+  "permitType": {
+    "category": "right-of-way",
+    "subtype": "Skip on the highway"
+  },
+  "applicant": {
+    "role": "contractor",
+    "organization": {
+      "name": "Fenwick Skip Hire (fictional)",
+      "country": "GB"
+    }
+  },
+  "site": {
+    "address": {
+      "lines": [
+        "14 Example Terrace"
+      ],
+      "locality": "Example Town",
+      "postalCode": "ZZ1 1ZZ",
+      "country": "GB"
+    }
+  },
+  "fees": [
+    {
+      "description": "Skip licence (14 days)",
+      "amount": {
+        "currency": "GBP",
+        "amount": 45.0
+      },
+      "status": "assessed"
+    }
+  ],
+  "status": "submitted"
+}

@@ -1,0 +1,8 @@
+{
+  "reason": "An event cannot be discovered before it happened.",
+  "expect": {
+    "source": "rule",
+    "keyword": "occurred-before-discovered",
+    "path": "/event/occurredAt"
+  }
+}

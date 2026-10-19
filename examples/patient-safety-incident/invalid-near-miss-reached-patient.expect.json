@@ -1,0 +1,8 @@
+{
+  "reason": "A near miss by definition did not reach the patient.",
+  "expect": {
+    "source": "rule",
+    "keyword": "near-miss-did-not-reach",
+    "path": "/reachedPatient"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "reason": "The patient block holds no direct identifiers; a name is not an allowed field.",
+  "expect": {
+    "source": "schema",
+    "keyword": "additionalProperties",
+    "path": "/patient"
+  }
+}
