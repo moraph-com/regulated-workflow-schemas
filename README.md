@@ -17,7 +17,7 @@ cross-field rules JSON Schema can't express, a command-line checker and TypeScri
 
 Maintained by [Moraph](https://www.moraph.com). Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-> **Status: 0.1.0, unreleased draft.** The formats may still change before 1.0. See [Versioning](#versioning).
+> **Status: 0.1.0, first public draft.** The formats may still change before 1.0. See [Versioning](#versioning).
 
 ## Why open formats
 

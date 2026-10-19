@@ -3,7 +3,9 @@
 All notable changes are recorded here. Each schema is versioned separately (see the README); repository releases are
 tagged `vX.Y.Z`.
 
-## 0.1.0 (unreleased)
+## Unreleased
+
+## 0.1.0 (2026-10-19)
 
 First public draft.
 
