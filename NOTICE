@@ -3,7 +3,11 @@ Copyright 2026 Moraph
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
-The formats are informed by public standards and guidance, including the AHRQ Common Formats, the WHO Conceptual
-Framework for the International Classification for Patient Safety, OCC Bulletin 2023-17, NIST SP 800-161, ISO/IEC 27036
-and the Building and Land Development Specification (BLDS). They are not endorsed by, affiliated with, or certified by
-the organizations that publish those documents.
+The formats are informed by public standards and guidance, including the AHRQ Common Formats for Event Reporting, the
+WHO Conceptual Framework for the International Classification for Patient Safety, the Interagency Guidance on
+Third-Party Relationships: Risk Management (OCC Bulletin 2023-17), NIST SP 800-161 Rev. 1, ISO/IEC 27036, the Building
+and Land Development Specification (BLDS) and Robert's Rules of Order Newly Revised. They are not endorsed by,
+affiliated with, or certified by the organizations that publish those documents.
+
+Robert's Rules of Order Newly Revised is a registered trademark of the Robert's Rules Association. Other names of
+standards and organizations belong to their owners and are used only to identify the documents referred to.
