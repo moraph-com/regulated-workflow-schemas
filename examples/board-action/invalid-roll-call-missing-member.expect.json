@@ -1,0 +1,10 @@
+{
+  "reason": "A roll call records every voting member; Ward 4 (m5) is missing instead of being recorded as absent.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "roll-call-complete",
+      "path": "/motions/0/votes"
+    }
+  ]
+}

@@ -1,8 +1,10 @@
 {
   "reason": "criticality must be one of low, moderate, high or critical.",
-  "expect": {
-    "source": "schema",
-    "keyword": "enum",
-    "path": "/criticality"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "enum",
+      "path": "/criticality"
+    }
+  ]
 }

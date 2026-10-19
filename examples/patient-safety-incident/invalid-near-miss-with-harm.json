@@ -1,0 +1,33 @@
+{
+  "recordType": "patient-safety-incident",
+  "schemaVersion": "0.1.0",
+  "id": "PSI-2026-00902-nmwh",
+  "facility": {
+    "name": "Lakeside Outpatient Pharmacy (fictional)",
+    "type": "pharmacy"
+  },
+  "event": {
+    "discoveredAt": "2026-06-02T16:40:00-07:00",
+    "location": {
+      "type": "pharmacy"
+    }
+  },
+  "eventType": "near-miss",
+  "eventCategory": "medication-or-other-substance",
+  "eventSubcategory": "Look-alike packaging",
+  "description": "Two strengths of the same drug were stored next to each other in near-identical packaging; the wrong strength was picked and caught at final verification.",
+  "reachedPatient": false,
+  "contributingFactors": [
+    {
+      "category": "labeling-or-packaging"
+    }
+  ],
+  "reporter": {
+    "anonymous": true,
+    "role": "pharmacist"
+  },
+  "status": "triaged",
+  "harm": {
+    "level": "no-harm"
+  }
+}

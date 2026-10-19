@@ -24,7 +24,11 @@ function untitlePrimitives(node) {
   if (Array.isArray(node)) return node.map(untitlePrimitives);
   if (!node || typeof node !== "object") return node;
   const out = {};
-  for (const [k, v] of Object.entries(node)) out[k] = k === "properties" || k === "$defs" ? Object.fromEntries(Object.entries(v).map(([n, s]) => [n, untitlePrimitives(s)])) : untitlePrimitives(v);
+  for (const [k, v] of Object.entries(node))
+    out[k] =
+      k === "properties" || k === "$defs"
+        ? Object.fromEntries(Object.entries(v).map(([n, s]) => [n, untitlePrimitives(s)]))
+        : untitlePrimitives(v);
   if (out.title && !(out.type === "object" && out.properties)) delete out.title;
   return out;
 }
@@ -37,7 +41,10 @@ function narrowRefs(node, root) {
   if (Array.isArray(node)) return node.map((n) => narrowRefs(n, root));
   if (!node || typeof node !== "object") return node;
   if (typeof node.$ref === "string" && !node.$ref.startsWith("#") && node.properties) {
-    const inline = (v) => (typeof v.$ref === "string" && v.$ref.startsWith("#/$defs/") ? (({ $ref, ...rest }) => ({ ...root.$defs[$ref.slice(8)], ...rest }))(v) : v);
+    const inline = (v) =>
+      typeof v.$ref === "string" && v.$ref.startsWith("#/$defs/")
+        ? (({ $ref, ...rest }) => ({ ...root.$defs[$ref.slice(8)], ...rest }))(v)
+        : v;
     const props = Object.fromEntries(Object.entries(node.properties).map(([k, v]) => [k, inline(v)]));
     return { allOf: [{ $ref: node.$ref }, { type: "object", properties: props }] };
   }

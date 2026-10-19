@@ -1,8 +1,10 @@
 {
   "reason": "Hayden Example (m5) was absent from the meeting, so the record can't show them voting yes.",
-  "expect": {
-    "source": "rule",
-    "keyword": "present-to-vote",
-    "path": "/motions/0/votes/4/vote"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "present-to-vote",
+      "path": "/motions/0/votes/4/vote"
+    }
+  ]
 }

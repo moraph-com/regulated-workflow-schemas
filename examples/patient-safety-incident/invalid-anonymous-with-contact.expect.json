@@ -1,8 +1,10 @@
 {
   "reason": "An anonymous report must not carry the reporter's contact details.",
-  "expect": {
-    "source": "schema",
-    "keyword": "not",
-    "path": "/reporter"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "not",
+      "path": "/reporter"
+    }
+  ]
 }

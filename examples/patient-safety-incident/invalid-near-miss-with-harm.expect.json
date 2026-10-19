@@ -1,0 +1,10 @@
+{
+  "reason": "The AHRQ Harm Scale rates harm to a patient the event reached (even no-harm means it reached the patient), so a near miss has no harm assessment.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "harm-only-if-reached",
+      "path": "/harm"
+    }
+  ]
+}

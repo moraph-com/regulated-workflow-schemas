@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/patient-safety-incident.schema.json",
   "title": "Patient safety incident",
-  "description": "A report of a patient safety event (an incident that reached the patient, a near miss or an unsafe condition), with its harm assessment, contributing factors, immediate actions, notifications and investigation. Informed by the AHRQ Common Formats for Event Reporting and the WHO Conceptual Framework for the International Classification for Patient Safety (ICPS). Designed to carry as little protected health information as possible: there are no fields for patient names, dates of birth or medical record numbers, only an opaque reference into the source system. Records are still not de-identified data: event dates and the facility can identify a patient, and free text can hold anything, so treat them as confidential.",
+  "description": "A report of one patient safety event: an incident that reached a patient, a near miss that didn't, or an unsafe condition that could lead to either. It holds the event's classification, the harm assessment, contributing factors, immediate actions, notifications, the investigation and its action plan, and any submission to a patient safety organization. The event types, categories and harm levels follow the concepts of the AHRQ Common Formats for Event Reporting – Hospital and the WHO Conceptual Framework for the International Classification for Patient Safety (ICPS), so reports can be mapped to them; the format is not an implementation of either and is not certified by AHRQ or WHO. It carries as little protected health information as it can: there are no fields for patient names, dates of birth, contact details or record numbers. Records are still not de-identified data (event dates, the facility and free text can identify a patient), so treat every record as confidential.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -20,27 +20,28 @@
   "properties": {
     "$schema": {
       "title": "Schema",
-      "description": "The $id of this schema, so readers can tell what the record is.",
+      "description": "The `$id` of the schema the record follows, so a reader can tell what the record is without guessing. Optional; recordType and schemaVersion say the same thing.",
       "type": "string",
       "format": "uri"
     },
     "recordType": {
       "title": "Record type",
-      "description": "Always patient-safety-incident.",
+      "description": "Always patient-safety-incident. Lets a reader (or validate()) tell the format apart from the others in this repository.",
       "const": "patient-safety-incident"
     },
     "schemaVersion": {
       "title": "Schema version",
-      "description": "The version of this format the record follows.",
+      "description": "The version of this format the record follows. Each version of the schema accepts only its own version string, so a record never silently passes against a schema it wasn't written for.",
       "const": "0.1.0"
     },
     "id": {
       "$ref": "common.schema.json#/$defs/identifier",
-      "description": "This report's identifier, unique within the system that created it."
+      "description": "This report's identifier, unique within the system that created it, such as the incident reporting system's event number.",
+      "examples": ["PSI-2026-00871"]
     },
     "externalIds": {
       "title": "External identifiers",
-      "description": "Ids for this report in other systems (incident reporting tool, PSO submission, risk management).",
+      "description": "Ids for this report in other systems: the incident reporting tool, a patient safety organization (PSO) submission, risk management or a state reporting portal.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/externalId"
@@ -48,7 +49,7 @@
     },
     "createdAt": {
       "$ref": "common.schema.json#/$defs/dateTime",
-      "description": "When the record was created."
+      "description": "When the record was created in the system that holds it. The report's own time is reporter.reportedAt."
     },
     "updatedAt": {
       "$ref": "common.schema.json#/$defs/dateTime",
@@ -56,28 +57,26 @@
     },
     "facility": {
       "title": "Facility",
-      "description": "Where the event happened.",
+      "description": "The facility where the event happened. A small facility plus an event date can identify a patient, which is one reason records remain confidential.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "type"
-      ],
+      "required": ["name", "type"],
       "properties": {
         "id": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "Identifier for this item, unique within the record."
+          "description": "The facility's id in the system the report comes from."
         },
         "name": {
           "title": "Name",
           "description": "The facility's name.",
           "type": "string",
           "minLength": 1,
-          "maxLength": 300
+          "maxLength": 300,
+          "examples": ["Riverbend General Hospital"]
         },
         "type": {
           "title": "Facility type",
-          "description": "hospital, ambulatory-surgery-center, clinic, long-term-care, behavioral-health, pharmacy, home-health, emergency-medical-services or other.",
+          "description": "The kind of facility: hospital; ambulatory-surgery-center; clinic (physician office, outpatient clinic); long-term-care (skilled nursing, nursing home, assisted living); behavioral-health; pharmacy (community or outpatient pharmacy); home-health; emergency-medical-services; or other. The AHRQ Common Formats have separate versions for hospitals, community pharmacies and skilled nursing facilities; this field records the setting either way.",
           "type": "string",
           "enum": [
             "hospital",
@@ -93,7 +92,7 @@
         },
         "identifiers": {
           "title": "Identifiers",
-          "description": "Facility identifiers such as a CMS Certification Number or a national provider id.",
+          "description": "Facility identifiers, such as the CMS Certification Number (scheme CCN), a National Provider Identifier (scheme NPI) or a state license number. These identify the facility, not the patient.",
           "type": "array",
           "items": {
             "$ref": "common.schema.json#/$defs/externalId"
@@ -101,46 +100,40 @@
         },
         "jurisdiction": {
           "$ref": "common.schema.json#/$defs/jurisdiction",
-          "description": "Where the facility is regulated."
+          "description": "Where the facility is licensed and regulated, which decides what must be reported and to whom."
         }
       }
     },
     "event": {
       "title": "Event",
-      "description": "When and where the event happened.",
+      "description": "When and where the event happened and when it was found. The gap between occurredAt and discoveredAt is itself a safety measure (time to detection).",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "discoveredAt"
-      ],
+      "required": ["discoveredAt"],
       "properties": {
         "occurredAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the event happened."
+          "description": "When the event happened, with the UTC offset in effect at the facility. Leave out if unknown; set occurredAtPrecision to say how sure the time is."
         },
         "occurredAtPrecision": {
           "title": "Occurrence time precision",
-          "description": "exact, approximate or unknown. Use approximate when the time was estimated after the fact.",
+          "description": "How exact occurredAt is: exact (observed or recorded at the time), approximate (estimated afterwards, for example an unwitnessed fall) or unknown (occurredAt is a placeholder or left out).",
           "type": "string",
-          "enum": [
-            "exact",
-            "approximate",
-            "unknown"
-          ]
+          "enum": ["exact", "approximate", "unknown"]
         },
         "discoveredAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the event was discovered."
+          "description": "When staff discovered the event. Required, because every report has a discovery time even when the event time is unknown. Must not be before occurredAt."
         },
         "location": {
           "title": "Location",
-          "description": "Where in the facility the event happened.",
+          "description": "Where in the facility the event happened. Keep it to what trending needs: a room number with a date can identify a patient.",
           "type": "object",
           "additionalProperties": false,
           "properties": {
             "type": {
               "title": "Location type",
-              "description": "inpatient-unit, intensive-care, emergency-department, operating-room, procedure-area, labor-and-delivery, outpatient-area, pharmacy, laboratory, imaging, patient-home, transport, common-area or other.",
+              "description": "The kind of area: inpatient-unit, intensive-care, emergency-department, operating-room, procedure-area (endoscopy, cath lab, interventional radiology), labor-and-delivery, outpatient-area, pharmacy, laboratory, imaging, patient-home (for home health), transport (between areas or facilities), common-area (hallways, lobbies, grounds) or other.",
               "type": "string",
               "enum": [
                 "inpatient-unit",
@@ -161,15 +154,18 @@
             },
             "unit": {
               "title": "Unit",
-              "description": "The unit or department name, for example 4 West Medical.",
+              "description": "The unit or department name as the facility uses it.",
               "type": "string",
-              "maxLength": 200
+              "maxLength": 200,
+              "examples": ["4 West Medical", "Main OR"]
             },
             "detail": {
               "title": "Detail",
-              "description": "More precise location, for example bathroom of room 12.",
+              "description": "A more precise place, when it matters to the analysis (for example patient bathroom, medication room). Avoid room or bed numbers in records shared outside the facility.",
+              "x-sensitivity": "free-text",
               "type": "string",
-              "maxLength": 500
+              "maxLength": 500,
+              "examples": ["Patient bathroom"]
             }
           }
         }
@@ -177,17 +173,13 @@
     },
     "eventType": {
       "title": "Event type",
-      "description": "incident (reached the patient, whether or not it caused harm), near-miss (did not reach the patient) or unsafe-condition (a circumstance that increases the chance of an event). These follow the AHRQ Common Formats event types.",
+      "description": "What kind of patient safety event this is, using the three event types of the AHRQ Common Formats. incident: an event that reached the patient, whether or not the patient was harmed (ICPS splits these into no-harm incidents and harmful incidents, or adverse events). near-miss: an event that did not reach the patient, also called a close call (the ICPS near miss). unsafe-condition: any circumstance that increases the probability of a patient safety event, and that does not involve an identifiable patient (the ICPS reportable circumstance). The validator checks reachedPatient, harm and patient agree with the type.",
       "type": "string",
-      "enum": [
-        "incident",
-        "near-miss",
-        "unsafe-condition"
-      ]
+      "enum": ["incident", "near-miss", "unsafe-condition"]
     },
     "eventCategory": {
       "title": "Event category",
-      "description": "The clinical area of the event, following the AHRQ Common Formats event-specific categories: blood-or-blood-product, device-or-medical-supply, fall, healthcare-associated-infection, medication-or-other-substance, perinatal, pressure-injury, surgery-or-anesthesia, venous-thromboembolism, or other.",
+      "description": "The clinical area of the event, following the event categories of the AHRQ Common Formats for Event Reporting – Hospital: blood-or-blood-product; device-or-medical-supply (AHRQ: Device or Medical/Surgical Supply, including Health Information Technology); fall; healthcare-associated-infection; medication-or-other-substance; perinatal; pressure-injury (Pressure Ulcer in Common Formats versions 1.1 and 1.2); surgery-or-anesthesia (includes invasive procedures); venous-thromboembolism; or other, for events outside these categories (describe them with eventSubcategory). Pick the category the event is about, not every category it touches; use contributingFactors for the rest.",
       "type": "string",
       "enum": [
         "blood-or-blood-product",
@@ -204,126 +196,111 @@
     },
     "eventSubcategory": {
       "title": "Event subcategory",
-      "description": "A finer classification in the reporting organization's own terms, for example wrong dose.",
+      "description": "A finer classification in the reporting organization's own taxonomy, for trending within the category.",
+      "x-sensitivity": "free-text",
       "type": "string",
-      "maxLength": 200
+      "maxLength": 200,
+      "examples": ["Wrong dose", "Unassisted fall while toileting", "Look-alike packaging"]
     },
     "description": {
       "title": "Description",
-      "description": "What happened, in the reporter's words. Do not include patient names, dates of birth, record numbers or other direct identifiers.",
+      "description": "What happened, in the reporter's words: the sequence of events, what was found and what was done. Don't include patient names, dates of birth, record numbers, addresses or other direct identifiers; refer to 'the patient'. The schema can't enforce that, so screen this field before sharing a record outside the organization.",
+      "x-sensitivity": "free-text",
       "type": "string",
       "minLength": 1,
       "maxLength": 20000
     },
     "patient": {
       "title": "Patient",
-      "description": "De-identified facts about the patient involved, when the event involved one. Holds no direct identifiers by design.",
+      "description": "Facts about the patient involved that analysis needs and that can't identify the patient on their own. The object is closed (additionalProperties is false), so names, dates of birth, medical record numbers, addresses and the like are rejected rather than stored. Leave the whole block out for an unsafe condition, which by definition involves no identifiable patient.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "ageBand": {
           "title": "Age band",
-          "description": "neonate (0-28 days), infant (29 days to 1 year), child (1-12), adolescent (13-17), adult-18-44, adult-45-64, adult-65-84, adult-85-plus or unknown.",
+          "description": "The patient's age at the time of the event, as a band rather than a date of birth (a date of birth is a direct identifier). The bands are those of the AHRQ Common Formats (version 1.1) patient information form: neonate (0 to 28 days), infant (more than 28 days and under 1 year), child (1 to 12 years), adolescent (13 to 17), adult-18-64, adult-65-74, adult-75-84, adult-85-plus, or unknown.",
           "type": "string",
           "enum": [
             "neonate",
             "infant",
             "child",
             "adolescent",
-            "adult-18-44",
-            "adult-45-64",
-            "adult-65-84",
+            "adult-18-64",
+            "adult-65-74",
+            "adult-75-84",
             "adult-85-plus",
             "unknown"
           ]
         },
         "sex": {
           "title": "Sex",
-          "description": "female, male, other or unknown.",
+          "description": "The patient's sex as recorded in the source system: female, male, other, or unknown (not recorded or not disclosed).",
           "type": "string",
-          "enum": [
-            "female",
-            "male",
-            "other",
-            "unknown"
-          ]
+          "enum": ["female", "male", "other", "unknown"]
         },
         "encounterRef": {
           "title": "Encounter reference",
-          "description": "An opaque key that lets authorized staff find the encounter in the source system. Not a medical record number.",
+          "description": "An opaque key that lets authorized staff find the encounter in the source system. It must be a surrogate (a random token kept in a lookup table that stays inside the organization), not the medical record number, account number or visit number, because those are direct identifiers under HIPAA. With the lookup table, this key re-identifies the patient, so don't share it outside the organization.",
+          "x-sensitivity": "personal",
           "type": "string",
-          "maxLength": 200
+          "maxLength": 200,
+          "examples": ["enc-7f3c91"]
         }
       }
     },
     "reachedPatient": {
       "title": "Reached the patient",
-      "description": "Whether the event reached the patient.",
+      "description": "Whether the event reached the patient. true for an incident, false for a near miss; leave out for an unsafe condition. Recording it separately from eventType lets the validator catch a misclassified report.",
       "type": "boolean"
     },
     "harm": {
       "title": "Harm",
-      "description": "The assessed harm to the patient, using the concepts of the AHRQ Common Formats Harm Scale.",
+      "description": "The assessed harm to the patient, for events that reached the patient (incidents) only. The levels follow the AHRQ Common Formats Harm Scale (version 1.2): harm remaining after the event was discovered and any attempts to reduce its consequences, assessed at a stated time. Near misses and unsafe conditions have no harm block; the validator checks this.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "level"
-      ],
+      "required": ["level"],
       "properties": {
         "level": {
           "title": "Harm level",
-          "description": "death, severe-harm, moderate-harm, mild-harm, no-harm or unknown.",
+          "description": "death: the patient died, and the event caused or brought forward the death. severe-harm: bodily or psychological injury, including pain or disfigurement, that interferes significantly with functional ability or quality of life. moderate-harm: bodily or psychological injury that adversely affects functional ability or quality of life, but not at the level of severe harm. mild-harm: minimal symptoms or loss of function, or injury limited to additional treatment, monitoring or a longer stay. no-harm: the event reached the patient, but no harm was evident. unknown: harm can't be assessed yet; update the record when it can.",
           "type": "string",
-          "enum": [
-            "death",
-            "severe-harm",
-            "moderate-harm",
-            "mild-harm",
-            "no-harm",
-            "unknown"
-          ]
+          "enum": ["death", "severe-harm", "moderate-harm", "mild-harm", "no-harm", "unknown"]
         },
         "duration": {
           "title": "Duration",
-          "description": "permanent, temporary or unknown.",
+          "description": "For mild, moderate or severe harm, whether it is expected to be permanent (lifelong) or temporary, at the time of assessment; unknown when the prognosis isn't clear yet.",
           "type": "string",
-          "enum": [
-            "permanent",
-            "temporary",
-            "unknown"
-          ]
+          "enum": ["permanent", "temporary", "unknown"]
         },
         "additionalTreatment": {
           "title": "Additional treatment",
-          "description": "Whether the patient needed treatment because of the event.",
+          "description": "Whether the patient needed additional treatment, monitoring or a longer stay because of the event. Recorded separately because it drives cost and is often known before the final harm level.",
           "type": "boolean"
         },
         "assessedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When harm was assessed."
+          "description": "When harm was assessed. The harm level is a prognosis at this time and can change; reassess and update the record (the audit trail keeps the earlier value)."
         },
         "assessedBy": {
           "$ref": "common.schema.json#/$defs/personRef",
-          "description": "Who assessed harm."
+          "description": "Who assessed harm, usually a clinician or the patient safety officer."
         }
       }
     },
     "contributingFactors": {
       "title": "Contributing factors",
-      "description": "Circumstances that contributed to the event.",
+      "description": "Circumstances that contributed to the event, as many as apply. This list is this format's own, chosen for the factors safety teams most often trend; it maps onto the WHO ICPS contributing factor groups (staff, patient, work environment, organizational and service, external) but is not either framework's list.",
       "type": "array",
       "items": {
         "title": "Contributing factor",
-        "description": "One contributing factor.",
+        "description": "One contributing factor and how it contributed.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "category"
-        ],
+        "required": ["category"],
         "properties": {
           "category": {
             "title": "Category",
-            "description": "communication, handoff, staffing, training, policy-or-procedure, equipment-or-device, environment, patient-factors, task-factors, team-factors, organizational-culture, labeling-or-packaging, information-system or other.",
+            "description": "communication (between staff, or with the patient or family); handoff (transfer of care or information between people or units); staffing (numbers or skill mix); training (knowledge or competence); policy-or-procedure (missing, unclear or not followed); equipment-or-device (failure, design or use); environment (layout, lighting, noise, clutter); patient-factors (condition, behavior, language, adherence); task-factors (complexity, interruptions, time pressure); team-factors (supervision, roles, teamwork); organizational-culture (reporting culture, normalized deviance, priorities); labeling-or-packaging (look-alike or sound-alike products, unclear labels); information-system (EHR, order entry or other IT design or failure); other.",
             "type": "string",
             "enum": [
               "communication",
@@ -344,7 +321,8 @@
           },
           "detail": {
             "title": "Detail",
-            "description": "How the factor contributed.",
+            "description": "How this factor contributed, specifically enough that someone could act on it.",
+            "x-sensitivity": "free-text",
             "type": "string",
             "maxLength": 4000
           }
@@ -353,20 +331,19 @@
     },
     "immediateActions": {
       "title": "Immediate actions",
-      "description": "What was done straight away to care for the patient and make the situation safe.",
+      "description": "What was done straight away to care for the patient and make the situation safe, before any investigation. Corrective actions to prevent recurrence go in investigation.actions.",
       "type": "array",
       "items": {
         "title": "Immediate action",
         "description": "One action taken.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "action"
-        ],
+        "required": ["action"],
         "properties": {
           "action": {
             "title": "Action",
             "description": "What was done.",
+            "x-sensitivity": "free-text",
             "type": "string",
             "minLength": 1,
             "maxLength": 4000
@@ -377,30 +354,29 @@
           },
           "takenByRole": {
             "title": "Taken by (role)",
-            "description": "The role of the person who acted, for example charge nurse.",
+            "description": "The role of the person who acted, rather than their name: roles are what analysis needs, and names of staff in safety reports are sensitive.",
             "type": "string",
-            "maxLength": 200
+            "maxLength": 200,
+            "examples": ["Charge nurse", "Pharmacist"]
           }
         }
       }
     },
     "reporter": {
       "title": "Reporter",
-      "description": "Who reported the event. Reports may be anonymous; an anonymous report carries no contact details, and systems should also keep the reporter's name out of statusHistory and auditTrail.",
+      "description": "Who reported the event. Reporting systems commonly allow anonymous reports, because people report more when they can't be blamed. An anonymous report has no contact details (the schema rejects them), and the validator also checks that the submission entries in statusHistory and auditTrail don't name the reporter. Even then, role plus unit can identify someone on a small team; systems should consider that before showing role to wide audiences.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "anonymous"
-      ],
+      "required": ["anonymous"],
       "properties": {
         "anonymous": {
           "title": "Anonymous",
-          "description": "Whether the reporter chose to stay anonymous.",
+          "description": "Whether the reporter chose to stay anonymous. When true, contact must be left out.",
           "type": "boolean"
         },
         "role": {
           "title": "Role",
-          "description": "physician, advanced-practice-provider, nurse, pharmacist, other-clinician, non-clinical-staff, patient-or-family or other.",
+          "description": "The reporter's role: physician; advanced-practice-provider (nurse practitioner, physician assistant, nurse anesthetist, nurse midwife); nurse; pharmacist; other-clinician (therapist, technologist, other licensed clinical staff); non-clinical-staff; patient-or-family; or other.",
           "type": "string",
           "enum": [
             "physician",
@@ -415,15 +391,15 @@
         },
         "contact": {
           "$ref": "common.schema.json#/$defs/personRef",
-          "description": "How to reach the reporter. Not allowed when the report is anonymous."
+          "description": "How to reach the reporter for follow-up questions or feedback. Not allowed when the report is anonymous."
         },
         "reportedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the report was made."
+          "description": "When the report was made. Must not be before event.discoveredAt."
         },
         "wantsFeedback": {
           "title": "Wants feedback",
-          "description": "Whether the reporter asked to hear what came of the report.",
+          "description": "Whether the reporter asked to hear what came of the report. Closing the loop with reporters is a mark of a working reporting culture, so systems should track it.",
           "type": "boolean"
         }
       },
@@ -436,28 +412,24 @@
       },
       "then": {
         "not": {
-          "required": [
-            "contact"
-          ]
+          "required": ["contact"]
         }
       }
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Who was told about the event, when and how.",
+      "description": "Who was told about the event, when and how: the patient or family (disclosure), clinicians and leaders, and outside bodies such as a state agency, an accreditor, a patient safety organization or a device manufacturer. Recording whether a rule required each notification makes missed or late mandatory reports visible.",
       "type": "array",
       "items": {
         "title": "Notification",
         "description": "One notification.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "recipient"
-        ],
+        "required": ["recipient"],
         "properties": {
           "recipient": {
             "title": "Recipient",
-            "description": "patient-or-family, attending-clinician, unit-leadership, risk-management, patient-safety-officer, regulatory-agency, patient-safety-organization, accreditation-body, manufacturer, insurer or other.",
+            "description": "Who was notified: patient-or-family; attending-clinician; unit-leadership; risk-management; patient-safety-officer; regulatory-agency (for example a state health department); patient-safety-organization (a PSO); accreditation-body; manufacturer (for example under a device reporting program); insurer; or other.",
             "type": "string",
             "enum": [
               "patient-or-family",
@@ -475,9 +447,10 @@
           },
           "recipientName": {
             "title": "Recipient name",
-            "description": "The named agency, body or person, where relevant, for example a state health department.",
+            "description": "The named agency or body, where it matters which one. For patient-or-family, leave this out rather than naming the person.",
             "type": "string",
-            "maxLength": 300
+            "maxLength": 300,
+            "examples": ["State Department of Health", "Example Patient Safety Organization"]
           },
           "notifiedAt": {
             "$ref": "common.schema.json#/$defs/dateTime",
@@ -485,31 +458,25 @@
           },
           "method": {
             "title": "Method",
-            "description": "in-person, phone, letter, email, portal or other.",
+            "description": "How: in-person, phone, letter, email, portal (a reporting portal or patient portal) or other.",
             "type": "string",
-            "enum": [
-              "in-person",
-              "phone",
-              "letter",
-              "email",
-              "portal",
-              "other"
-            ]
+            "enum": ["in-person", "phone", "letter", "email", "portal", "other"]
           },
           "requiredByRule": {
             "title": "Required by rule",
-            "description": "Whether a law, regulation or policy required this notification.",
+            "description": "Whether a law, regulation, accreditation standard or internal policy required this notification.",
             "type": "boolean"
           },
           "ruleReference": {
             "title": "Rule reference",
             "description": "The rule that required it, as cited locally.",
             "type": "string",
-            "maxLength": 300
+            "maxLength": 300,
+            "examples": ["Hospital disclosure policy PS-12"]
           },
           "reference": {
             "title": "Reference",
-            "description": "A confirmation or case number from the recipient.",
+            "description": "A confirmation, case or report number the recipient gave.",
             "type": "string",
             "maxLength": 200
           }
@@ -518,16 +485,14 @@
     },
     "investigation": {
       "title": "Investigation",
-      "description": "The review of why the event happened and what will change.",
+      "description": "The review of why the event happened and what will change. Many organizations investigate only some events (for example by harm level); leave this out until an investigation starts.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "method"
-      ],
+      "required": ["method"],
       "properties": {
         "method": {
           "title": "Method",
-          "description": "root-cause-analysis, apparent-cause-analysis, failure-mode-and-effects-analysis, case-review or none.",
+          "description": "How the event was analyzed: root-cause-analysis (a full systems analysis, as used for sentinel events); apparent-cause-analysis (a more limited review, usually for lower-harm events); failure-mode-and-effects-analysis (a prospective analysis of a process, sometimes triggered by an event); case-review (peer or clinical case review); or none (reviewed and closed without a formal analysis).",
           "type": "string",
           "enum": [
             "root-cause-analysis",
@@ -543,23 +508,26 @@
         },
         "startedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When it started."
+          "description": "When the investigation started."
         },
         "completedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When it was completed."
+          "description": "When the investigation was completed. Must not be before startedAt."
         },
         "summary": {
           "title": "Summary",
-          "description": "What the investigation found.",
+          "description": "What the investigation found, in a few paragraphs.",
+          "x-sensitivity": "free-text",
           "type": "string",
           "maxLength": 20000
         },
         "causes": {
           "title": "Causes",
-          "description": "The root or apparent causes identified.",
+          "description": "The root or apparent causes identified, one per entry, written as system causes rather than individual blame.",
           "type": "array",
           "items": {
+            "description": "One cause.",
+            "x-sensitivity": "free-text",
             "type": "string",
             "minLength": 1,
             "maxLength": 2000
@@ -567,59 +535,50 @@
         },
         "actions": {
           "title": "Action plan",
-          "description": "Changes to prevent recurrence.",
+          "description": "The action plan: changes to prevent recurrence, each with its strength, owner, due date and measure.",
           "type": "array",
           "items": {
             "title": "Corrective action",
             "description": "One corrective action.",
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "action",
-              "status"
-            ],
+            "required": ["action", "status"],
             "properties": {
               "action": {
                 "title": "Action",
                 "description": "What will change.",
+                "x-sensitivity": "free-text",
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 4000
               },
               "strength": {
                 "title": "Strength",
-                "description": "stronger (for example forcing functions, standardized equipment), intermediate (checklists, redundancy) or weaker (training, new policy), following the action hierarchy widely used in root cause analysis.",
+                "description": "How strong the action is, on the action hierarchy used in root cause analysis (developed by the US Department of Veterans Affairs National Center for Patient Safety and used in RCA²): stronger actions change the system so the error is hard to make (forcing functions, standardized equipment, removing hazards); intermediate actions make errors less likely or easier to catch (checklists, redundancy, software enhancements); weaker actions rely on people remembering (training, new policy, warnings). Action plans made only of weaker actions rarely prevent recurrence.",
                 "type": "string",
-                "enum": [
-                  "stronger",
-                  "intermediate",
-                  "weaker"
-                ]
+                "enum": ["stronger", "intermediate", "weaker"]
               },
               "owner": {
                 "$ref": "common.schema.json#/$defs/personRef",
-                "description": "Who is responsible."
+                "description": "Who is responsible for completing the action."
               },
               "dueDate": {
                 "$ref": "common.schema.json#/$defs/date",
-                "description": "When it is due."
+                "description": "When the action is due."
               },
               "status": {
                 "title": "Status",
-                "description": "planned, in-progress, complete or cancelled.",
+                "description": "planned, in-progress, complete or cancelled (with the reason in the audit trail).",
                 "type": "string",
-                "enum": [
-                  "planned",
-                  "in-progress",
-                  "complete",
-                  "cancelled"
-                ]
+                "enum": ["planned", "in-progress", "complete", "cancelled"]
               },
               "measure": {
                 "title": "Measure of success",
-                "description": "How the organization will know the action worked.",
+                "description": "How the organization will know the action worked: a measurable check, not 'staff educated'.",
+                "x-sensitivity": "free-text",
                 "type": "string",
-                "maxLength": 2000
+                "maxLength": 2000,
+                "examples": ["Monthly audit of 20 beds finds no alarms below minimum volume."]
               }
             }
           }
@@ -628,16 +587,14 @@
     },
     "psoSubmission": {
       "title": "PSO submission",
-      "description": "Submission of the report to a patient safety organization, where one is used.",
+      "description": "Submission of the report to a patient safety organization (PSO), where the organization works with one. In the US, information reported to a PSO can be patient safety work product with privilege and confidentiality protections under the Patient Safety and Quality Improvement Act; this field records the submission and doesn't decide that question.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "submitted"
-      ],
+      "required": ["submitted"],
       "properties": {
         "submitted": {
           "title": "Submitted",
-          "description": "Whether the report was submitted.",
+          "description": "Whether the report was submitted to the PSO.",
           "type": "boolean"
         },
         "organization": {
@@ -652,19 +609,20 @@
         },
         "commonFormatsVersion": {
           "title": "Common Formats version",
-          "description": "The version of the AHRQ Common Formats used for the submission, if any.",
+          "description": "The version of the AHRQ Common Formats the submission used, as the PSO names it.",
           "type": "string",
-          "maxLength": 50
+          "maxLength": 50,
+          "examples": ["Hospital 2.0", "Hospital 1.2"]
         }
       }
     },
     "status": {
       "$ref": "#/$defs/status",
-      "description": "submitted, triaged, under-investigation, action-plan, closed or not-a-safety-event."
+      "description": "Where the report is in its review: submitted (received, not yet looked at); triaged (classified and assigned); under-investigation; action-plan (investigation done, corrective actions in progress); closed; or not-a-safety-event (reviewed and found not to be a patient safety event, for example a pure facilities issue)."
     },
     "statusHistory": {
       "title": "Status history",
-      "description": "Every status the record has had, oldest first, each one of the values of status. For an anonymous report, don't record the reporter in by.",
+      "description": "Every status the report has had, oldest first, ending at the current status (the validator checks both). For an anonymous report, leave by out of the submission entry.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/statusChange",
@@ -679,7 +637,7 @@
     },
     "attachments": {
       "title": "Attachments",
-      "description": "Files that belong to the report. Keep identifiable clinical documents in the clinical record, not here.",
+      "description": "Files that belong to the report, such as an investigation report or a photograph of a device. Keep identifiable clinical documents in the clinical record, not here.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/attachment"
@@ -687,7 +645,7 @@
     },
     "auditTrail": {
       "title": "Audit trail",
-      "description": "Recorded actions on the report, oldest first. For an anonymous report, don't record the reporter as an actor.",
+      "description": "Recorded actions on the report, oldest first. For an anonymous report, don't record the reporter as the actor who created or submitted it.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/auditEntry"
@@ -695,22 +653,15 @@
     },
     "extensions": {
       "$ref": "common.schema.json#/$defs/extensions",
-      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>."
+      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>. Don't use extensions to add patient identifiers the format deliberately leaves out."
     }
   },
   "$defs": {
     "status": {
       "title": "Status",
-      "description": "The status values of this format.",
+      "description": "The status values of this format, defined once so status and statusHistory use the same list. Where the report is in its review: submitted (received, not yet looked at); triaged (classified and assigned); under-investigation; action-plan (investigation done, corrective actions in progress); closed; or not-a-safety-event (reviewed and found not to be a patient safety event, for example a pure facilities issue).",
       "type": "string",
-      "enum": [
-        "submitted",
-        "triaged",
-        "under-investigation",
-        "action-plan",
-        "closed",
-        "not-a-safety-event"
-      ]
+      "enum": ["submitted", "triaged", "under-investigation", "action-plan", "closed", "not-a-safety-event"]
     }
   }
 }

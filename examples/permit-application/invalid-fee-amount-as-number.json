@@ -21,9 +21,7 @@
   },
   "site": {
     "address": {
-      "lines": [
-        "14 Example Terrace"
-      ],
+      "lines": ["14 Example Terrace"],
       "locality": "Example Town",
       "postalCode": "ZZ1 1ZZ",
       "country": "GB"
@@ -34,7 +32,7 @@
       "description": "Skip licence (14 days)",
       "amount": {
         "currency": "GBP",
-        "amount": 45.0
+        "amount": 45
       },
       "status": "assessed"
     }

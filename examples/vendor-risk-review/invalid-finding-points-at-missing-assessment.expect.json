@@ -1,8 +1,10 @@
 {
   "reason": "A finding's assessmentId must name an assessment in the same review.",
-  "expect": {
-    "source": "rule",
-    "keyword": "assessment-exists",
-    "path": "/findings/0/assessmentId"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "assessment-exists",
+      "path": "/findings/0/assessmentId"
+    }
+  ]
 }

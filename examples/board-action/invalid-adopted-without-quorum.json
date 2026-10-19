@@ -1,0 +1,170 @@
+{
+  "$schema": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/board-action.schema.json",
+  "recordType": "board-action",
+  "schemaVersion": "0.1.0",
+  "id": "cc-2026-06-10-7b-awq",
+  "body": {
+    "name": "Riverbend City Council (fictional)",
+    "type": "city-council",
+    "jurisdiction": {
+      "country": "US",
+      "subdivision": "US-OR",
+      "locality": "City of Riverbend (fictional)"
+    },
+    "publicBody": true
+  },
+  "meeting": {
+    "id": "cc-2026-06-10",
+    "type": "regular",
+    "scheduledStart": "2026-06-10T18:00:00-07:00",
+    "calledToOrderAt": "2026-06-10T18:02:00-07:00",
+    "adjournedAt": "2026-06-10T21:14:00-07:00",
+    "location": "Council Chambers, 100 Main St, and by video",
+    "remoteParticipation": true,
+    "noticePostedAt": "2026-06-05T12:00:00-07:00",
+    "openToPublic": true,
+    "presidingOfficerId": "m1",
+    "quorum": {
+      "required": 4,
+      "present": 3
+    }
+  },
+  "members": [
+    {
+      "id": "m1",
+      "name": "Jamie Example",
+      "seat": "Mayor",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "m2",
+      "name": "Rowan Sample",
+      "seat": "Ward 1",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "m3",
+      "name": "Emery Example",
+      "seat": "Ward 2",
+      "voting": true,
+      "attendance": "present"
+    },
+    {
+      "id": "m4",
+      "name": "Parker Sample",
+      "seat": "Ward 3",
+      "voting": true,
+      "attendance": "remote"
+    },
+    {
+      "id": "m5",
+      "name": "Hayden Example",
+      "seat": "Ward 4",
+      "voting": true,
+      "attendance": "absent"
+    }
+  ],
+  "agendaItem": {
+    "number": "7.b",
+    "title": "Award of contract for Alder Street water main replacement",
+    "section": "action",
+    "summary": "Staff recommend awarding the contract to the lowest responsive bidder.",
+    "sponsor": {
+      "name": "Public Works Director"
+    },
+    "attachmentIds": ["staff-report", "bid-tab"],
+    "publicComments": [
+      {
+        "speaker": "Resident",
+        "position": "support",
+        "format": "in-person",
+        "summary": "Asked that work avoid school drop-off hours."
+      },
+      {
+        "position": "oppose",
+        "format": "written",
+        "summary": "Prefers the project wait until next fiscal year."
+      }
+    ]
+  },
+  "motions": [
+    {
+      "id": "mo1",
+      "kind": "main",
+      "text": "Award the Alder Street water main contract to the lowest responsive bidder for an amount not to exceed $2,340,000.",
+      "movedBy": "m2",
+      "secondedBy": "m3",
+      "voteMethod": "roll-call",
+      "threshold": "majority-of-votes-cast",
+      "votes": [
+        {
+          "memberId": "m1",
+          "vote": "yes"
+        },
+        {
+          "memberId": "m2",
+          "vote": "yes"
+        },
+        {
+          "memberId": "m3",
+          "vote": "yes"
+        },
+        {
+          "memberId": "m4",
+          "vote": "recused"
+        },
+        {
+          "memberId": "m5",
+          "vote": "absent"
+        }
+      ],
+      "tally": {
+        "yes": 3,
+        "no": 0,
+        "abstain": 0,
+        "absent": 1,
+        "recused": 1
+      },
+      "result": "adopted",
+      "decidedAt": "2026-06-10T19:41:00-07:00"
+    }
+  ],
+  "recusals": [
+    {
+      "memberId": "m4",
+      "reason": "family-relationship",
+      "detail": "A family member is employed by one of the bidders.",
+      "disclosedAt": "2026-06-10T19:20:00-07:00",
+      "leftRoom": true
+    }
+  ],
+  "outcome": {
+    "result": "approved",
+    "actionNumber": "Resolution 2026-41",
+    "effectiveOn": "2026-06-10",
+    "summary": "Contract awarded; not to exceed $2,340,000."
+  },
+  "minutes": {
+    "status": "approved",
+    "approvedAt": "2026-06-24T19:10:00-07:00"
+  },
+  "status": "minutes-approved",
+  "attachments": [
+    {
+      "id": "staff-report",
+      "title": "Staff report",
+      "mediaType": "application/pdf",
+      "sha256": "09b9cbec08e1b19ce93e661fd2e6dbda13be9d71ab0b408374db9cf6dadc9648",
+      "classification": "public"
+    },
+    {
+      "id": "bid-tab",
+      "title": "Bid tabulation",
+      "mediaType": "application/pdf",
+      "sha256": "d3c6ded513d544f4bf32a838fd137e7dd1bb5caa762dd59946100f7a968098ee",
+      "classification": "public"
+    }
+  ]
+}

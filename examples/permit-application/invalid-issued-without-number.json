@@ -35,9 +35,7 @@
       "phone": "+15555550142"
     },
     "mailingAddress": {
-      "lines": [
-        "118 Alder Way"
-      ],
+      "lines": ["118 Alder Way"],
       "locality": "Riverbend",
       "region": "OR",
       "postalCode": "97000",
@@ -73,17 +71,15 @@
   "site": {
     "parcelNumber": "12-34-56-000-0100",
     "address": {
-      "lines": [
-        "118 Alder Way"
-      ],
+      "lines": ["118 Alder Way"],
       "locality": "Riverbend",
       "region": "OR",
       "postalCode": "97000",
       "country": "US"
     },
     "location": {
-      "latitude": 44.0,
-      "longitude": -123.0
+      "latitude": 44,
+      "longitude": -123
     },
     "zoning": "R-1",
     "historicDistrict": false
@@ -181,6 +177,7 @@
     "basis": "Riverbend Municipal Code 15.04.120 (fictional)",
     "days": 120,
     "dayType": "calendar",
+    "timeZone": "America/Los_Angeles",
     "startedAt": "2026-03-02T17:12:00Z",
     "dueOn": "2026-07-17",
     "pauses": [
@@ -215,9 +212,7 @@
     "decidedBy": {
       "name": "Building Official"
     },
-    "conditions": [
-      "Call for inspections at each stage listed on the permit card."
-    ],
+    "conditions": ["Call for inspections at each stage listed on the permit card."],
     "expiresOn": "2027-04-21",
     "appealDeadline": "2026-05-05"
   },

@@ -21,9 +21,17 @@
   "agendaItem": {
     "number": "4",
     "title": "Approve updated Third-Party Risk Management Policy",
-    "section": "consent"
+    "section": "action"
   },
   "motions": [
+    {
+      "id": "x2",
+      "kind": "amend",
+      "appliesToMotionId": "x1",
+      "text": "Change the annual review to semiannual for critical vendors.",
+      "movedBy": "d3",
+      "result": "died-for-lack-of-second"
+    },
     {
       "id": "x1",
       "kind": "main",
@@ -37,14 +45,6 @@
         "yes": 6,
         "no": 0
       }
-    },
-    {
-      "id": "x2",
-      "kind": "amend",
-      "appliesToMotionId": "x1",
-      "text": "Change the annual review to semiannual for critical vendors.",
-      "movedBy": "d3",
-      "result": "died-for-lack-of-second"
     }
   ],
   "outcome": {

@@ -3,7 +3,7 @@
   "recordType": "patient-safety-incident",
   "schemaVersion": "0.1.0",
   "id": "PSI-2026-00871",
-  "createdAt": "2026-05-09T03:22:00Z",
+  "createdAt": "2026-05-09T03:22:00-07:00",
   "facility": {
     "name": "Riverbend General Hospital (fictional)",
     "type": "hospital",
@@ -13,9 +13,9 @@
     }
   },
   "event": {
-    "occurredAt": "2026-05-09T02:40:00Z",
+    "occurredAt": "2026-05-09T02:40:00-07:00",
     "occurredAtPrecision": "approximate",
-    "discoveredAt": "2026-05-09T02:55:00Z",
+    "discoveredAt": "2026-05-09T02:55:00-07:00",
     "location": {
       "type": "inpatient-unit",
       "unit": "4 West Medical",
@@ -27,7 +27,7 @@
   "eventSubcategory": "Unassisted fall while toileting",
   "description": "Patient found on bathroom floor after getting up without calling for help. Bed alarm was on but not audible at the nurses' station. Patient alert and reported hitting the left hip.",
   "patient": {
-    "ageBand": "adult-65-84",
+    "ageBand": "adult-75-84",
     "sex": "female",
     "encounterRef": "enc-7f3c91"
   },
@@ -36,7 +36,7 @@
     "level": "mild-harm",
     "duration": "temporary",
     "additionalTreatment": true,
-    "assessedAt": "2026-05-09T09:00:00Z",
+    "assessedAt": "2026-05-09T09:00:00-07:00",
     "assessedBy": {
       "name": "Casey Example",
       "title": "Hospitalist"
@@ -55,12 +55,12 @@
   "immediateActions": [
     {
       "action": "Assessed patient, assisted back to bed, notified provider; hip X-ray ordered (negative).",
-      "takenAt": "2026-05-09T03:05:00Z",
+      "takenAt": "2026-05-09T03:05:00-07:00",
       "takenByRole": "Charge nurse"
     },
     {
       "action": "Checked alarm volume on all beds on the unit.",
-      "takenAt": "2026-05-09T04:00:00Z",
+      "takenAt": "2026-05-09T04:00:00-07:00",
       "takenByRole": "Charge nurse"
     }
   ],
@@ -71,18 +71,18 @@
       "name": "Riley Sample",
       "title": "RN"
     },
-    "reportedAt": "2026-05-09T03:22:00Z",
+    "reportedAt": "2026-05-09T03:22:00-07:00",
     "wantsFeedback": true
   },
   "notifications": [
     {
       "recipient": "attending-clinician",
-      "notifiedAt": "2026-05-09T03:00:00Z",
+      "notifiedAt": "2026-05-09T03:00:00-07:00",
       "method": "phone"
     },
     {
       "recipient": "patient-or-family",
-      "notifiedAt": "2026-05-09T10:30:00Z",
+      "notifiedAt": "2026-05-09T10:30:00-07:00",
       "method": "in-person",
       "requiredByRule": true,
       "ruleReference": "Hospital disclosure policy PS-12"
@@ -94,12 +94,10 @@
       "name": "Taylor Example",
       "title": "Patient Safety Officer"
     },
-    "startedAt": "2026-05-11T15:00:00Z",
-    "completedAt": "2026-05-20T18:00:00Z",
+    "startedAt": "2026-05-11T15:00:00-07:00",
+    "completedAt": "2026-05-20T18:00:00-07:00",
     "summary": "Alarm volume could be lowered without a visible indicator.",
-    "causes": [
-      "Bed alarm volume could be set below audible level with no indication at the station."
-    ],
+    "causes": ["Bed alarm volume could be set below audible level with no indication at the station."],
     "actions": [
       {
         "action": "Lock minimum alarm volume in bed configuration across all units.",
@@ -121,26 +119,26 @@
   "psoSubmission": {
     "submitted": true,
     "organization": "Example Patient Safety Organization",
-    "submittedAt": "2026-05-25T12:00:00Z",
+    "submittedAt": "2026-05-25T12:00:00-07:00",
     "commonFormatsVersion": "Hospital 2.0"
   },
   "status": "action-plan",
   "statusHistory": [
     {
       "status": "submitted",
-      "at": "2026-05-09T03:22:00Z"
+      "at": "2026-05-09T03:22:00-07:00"
     },
     {
       "status": "triaged",
-      "at": "2026-05-09T13:00:00Z"
+      "at": "2026-05-09T13:00:00-07:00"
     },
     {
       "status": "under-investigation",
-      "at": "2026-05-11T15:00:00Z"
+      "at": "2026-05-11T15:00:00-07:00"
     },
     {
       "status": "action-plan",
-      "at": "2026-05-20T18:00:00Z"
+      "at": "2026-05-20T18:00:00-07:00"
     }
   ]
 }

@@ -1,8 +1,10 @@
 {
   "reason": "A finding marked risk-accepted must record who accepted the risk, when and why.",
-  "expect": {
-    "source": "schema",
-    "keyword": "required",
-    "path": "/findings/1"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "required",
+      "path": "/findings/1"
+    }
+  ]
 }

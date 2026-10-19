@@ -1,0 +1,10 @@
+{
+  "reason": "An unsafe condition involves no identifiable patient, so the record cannot describe one.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "unsafe-condition-no-patient",
+      "path": "/patient"
+    }
+  ]
+}

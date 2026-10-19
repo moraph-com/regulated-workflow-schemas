@@ -74,10 +74,7 @@
     "sponsor": {
       "name": "Public Works Director"
     },
-    "attachmentIds": [
-      "staff-report",
-      "bid-tab"
-    ],
+    "attachmentIds": ["staff-report", "bid-tab"],
     "publicComments": [
       {
         "speaker": "Resident",
@@ -124,11 +121,11 @@
         }
       ],
       "tally": {
-        "yes": 3,
+        "yes": 4,
         "no": 0,
         "abstain": 0,
         "absent": 1,
-        "recused": 1
+        "recused": 0
       },
       "result": "adopted",
       "decidedAt": "2026-06-10T19:41:00-07:00"

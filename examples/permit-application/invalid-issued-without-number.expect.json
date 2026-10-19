@@ -1,8 +1,10 @@
 {
   "reason": "An issued permit must carry its permit number.",
-  "expect": {
-    "source": "schema",
-    "keyword": "required",
-    "path": "/decision"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "required",
+      "path": "/decision"
+    }
+  ]
 }

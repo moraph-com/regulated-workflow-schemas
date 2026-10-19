@@ -1,0 +1,10 @@
+{
+  "reason": "A risk acceptance that expired before it was granted accepts nothing.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "dates-in-order",
+      "path": "/findings/1/riskAcceptance/expiresOn"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "reason": "Only three voting members were present and the quorum is four, so the council could not adopt the motion; the record must not show it as adopted.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "quorum-for-action",
+      "path": "/motions/0/result"
+    }
+  ]
+}

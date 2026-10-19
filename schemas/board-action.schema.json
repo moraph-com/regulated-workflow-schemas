@@ -2,43 +2,35 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/board-action.schema.json",
   "title": "Board action",
-  "description": "The record of one agenda item taken up by a board, council, commission or committee: the meeting, who attended, the motions made, who moved and seconded them, each member's vote, recusals and the outcome. Informed by parliamentary procedure as described in Robert's Rules of Order and by common open-meetings practice. Works for corporate boards and public bodies alike.",
+  "description": "The record of one agenda item taken up by a board, council, commission or committee: the body and meeting, who attended, the motions made, who moved and seconded them, each member's vote, recusals, public comment and the outcome. Motions, thresholds and voting follow the concepts of parliamentary procedure as described in Robert's Rules of Order Newly Revised (RONR); the format records what happened and doesn't require any body to follow RONR, since bylaws, statutes and local rules take precedence. Works for corporate and nonprofit boards and for public bodies.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "recordType",
-    "schemaVersion",
-    "id",
-    "body",
-    "meeting",
-    "members",
-    "agendaItem",
-    "status"
-  ],
+  "required": ["recordType", "schemaVersion", "id", "body", "meeting", "members", "agendaItem", "status"],
   "properties": {
     "$schema": {
       "title": "Schema",
-      "description": "The $id of this schema, so readers can tell what the record is.",
+      "description": "The `$id` of the schema the record follows, so a reader can tell what the record is without guessing. Optional; recordType and schemaVersion say the same thing.",
       "type": "string",
       "format": "uri"
     },
     "recordType": {
       "title": "Record type",
-      "description": "Always board-action.",
+      "description": "Always board-action. Lets a reader (or validate()) tell the format apart from the others in this repository.",
       "const": "board-action"
     },
     "schemaVersion": {
       "title": "Schema version",
-      "description": "The version of this format the record follows.",
+      "description": "The version of this format the record follows. Each version of the schema accepts only its own version string, so a record never silently passes against a schema it wasn't written for.",
       "const": "0.1.0"
     },
     "id": {
       "$ref": "common.schema.json#/$defs/identifier",
-      "description": "This record's identifier, unique within the system that created it."
+      "description": "This record's identifier, unique within the system that created it. One record covers one agenda item, so a meeting with ten items has ten records sharing meeting.id.",
+      "examples": ["cc-2026-06-10-7b"]
     },
     "externalIds": {
       "title": "External identifiers",
-      "description": "Ids for this action in other systems, for example a legislative management or board portal system.",
+      "description": "Ids for this item in other systems, for example a legislative management system's file number or a board portal's item id.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/externalId"
@@ -57,25 +49,23 @@
       "description": "The board, council, commission or committee that acted.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "name",
-        "type"
-      ],
+      "required": ["name", "type"],
       "properties": {
         "id": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "Identifier for the body."
+          "description": "Identifier for the body, so records from many meetings can be grouped."
         },
         "name": {
           "title": "Name",
-          "description": "The body's name, for example Board of Directors or Planning Commission.",
+          "description": "The body's name.",
           "type": "string",
           "minLength": 1,
-          "maxLength": 300
+          "maxLength": 300,
+          "examples": ["Board of Directors", "Planning Commission", "Riverbend City Council"]
         },
         "type": {
           "title": "Body type",
-          "description": "board-of-directors, board-committee, board-of-trustees, city-council, county-board, school-board, planning-commission, authority-board, advisory-committee or other.",
+          "description": "board-of-directors (a corporate or credit union board); board-committee (a committee of a board, such as audit or risk); board-of-trustees (nonprofit, pension or university trustees); city-council; county-board (board of supervisors or commissioners); school-board; planning-commission; authority-board (a public authority, district or agency board); advisory-committee; or other.",
           "type": "string",
           "enum": [
             "board-of-directors",
@@ -96,11 +86,11 @@
         },
         "jurisdiction": {
           "$ref": "common.schema.json#/$defs/jurisdiction",
-          "description": "The public body's jurisdiction, if any."
+          "description": "The public body's jurisdiction, if it is one."
         },
         "publicBody": {
           "title": "Public body",
-          "description": "Whether open-meetings law applies to the body.",
+          "description": "Whether open-meetings (sunshine) law applies to the body. Public bodies have notice, public access and minutes obligations that private boards don't.",
           "type": "boolean"
         }
       }
@@ -110,35 +100,25 @@
       "description": "The meeting at which the item was taken up.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "type",
-        "scheduledStart"
-      ],
+      "required": ["type", "scheduledStart"],
       "properties": {
         "id": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "Identifier for the meeting."
+          "description": "Identifier for the meeting, shared by every item's record from the same meeting."
         },
         "type": {
           "title": "Meeting type",
-          "description": "regular, special, emergency, annual, closed-session or workshop.",
+          "description": "regular; special (called for specific business); emergency; annual; closed-session (a meeting or portion closed to the public under a stated legal basis; executive session); or workshop (study session, usually without final action).",
           "type": "string",
-          "enum": [
-            "regular",
-            "special",
-            "emergency",
-            "annual",
-            "closed-session",
-            "workshop"
-          ]
+          "enum": ["regular", "special", "emergency", "annual", "closed-session", "workshop"]
         },
         "scheduledStart": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the meeting was scheduled to start."
+          "description": "When the meeting was scheduled to start, as noticed."
         },
         "calledToOrderAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the meeting was called to order."
+          "description": "When the presiding officer called the meeting to order."
         },
         "adjournedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
@@ -146,53 +126,52 @@
         },
         "location": {
           "title": "Location",
-          "description": "Where the meeting was held, including any remote access details made public.",
+          "description": "Where the meeting was held, including any remote access details that were made public.",
           "type": "string",
-          "maxLength": 1000
+          "maxLength": 1000,
+          "examples": ["Council Chambers, 100 Main St, and by video"]
         },
         "remoteParticipation": {
           "title": "Remote participation",
-          "description": "Whether members could take part remotely.",
+          "description": "Whether members could take part remotely. Whether remote members count toward quorum and may vote depends on the body's rules and, for public bodies, on law.",
           "type": "boolean"
         },
         "noticePostedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When public notice of the meeting was posted."
+          "description": "When public notice of the meeting was posted. Open-meetings laws set minimum notice periods, so this is what shows the notice was timely."
         },
         "openToPublic": {
           "title": "Open to the public",
-          "description": "Whether the public could attend this part of the meeting.",
+          "description": "Whether the public could attend the part of the meeting where the item was taken up.",
           "type": "boolean"
         },
         "closedSessionBasis": {
           "title": "Closed session basis",
-          "description": "The legal basis for closing the meeting, as cited locally, when it was closed.",
+          "description": "The legal basis for closing the meeting to the public, cited as the body cites it, when the item was taken up in closed session.",
           "type": "string",
-          "maxLength": 500
+          "maxLength": 500,
+          "examples": ["California Gov. Code 54956.9(d)(1) (existing litigation)"]
         },
         "presidingOfficerId": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "The member id of the presiding officer."
+          "description": "The member id of the presiding officer (chair, mayor, president) for this item."
         },
         "quorum": {
           "title": "Quorum",
-          "description": "Whether enough voting members were present to act.",
+          "description": "Whether enough voting members were present to act. Under RONR and most bylaws and statutes, a body without a quorum can't transact business; the validator flags motions recorded as adopted when present is below required.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "required",
-            "present"
-          ],
+          "required": ["required", "present"],
           "properties": {
             "required": {
               "title": "Required",
-              "description": "Voting members needed for a quorum.",
+              "description": "Voting members needed for a quorum, as set by bylaws, charter or statute (RONR's default for an organization with a defined membership is a majority of the members).",
               "type": "integer",
               "minimum": 1
             },
             "present": {
               "title": "Present",
-              "description": "Voting members present when the item was taken up.",
+              "description": "Voting members present when the item was taken up. Can't exceed the voting members listed in members.",
               "type": "integer",
               "minimum": 0
             }
@@ -202,7 +181,7 @@
     },
     "members": {
       "title": "Members",
-      "description": "Every member of the body for this meeting and whether they attended. Motions, votes and recusals refer to members by id.",
+      "description": "Every member of the body for this meeting, voting and non-voting, with their attendance. Motions, votes and recusals refer to members by id so the validator can check them. Leave vacant seats out: votes based on the entire membership count the members listed here.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -210,12 +189,7 @@
         "description": "One member of the body.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "id",
-          "name",
-          "voting",
-          "attendance"
-        ],
+        "required": ["id", "name", "voting", "attendance"],
         "properties": {
           "id": {
             "$ref": "common.schema.json#/$defs/identifier",
@@ -223,104 +197,92 @@
           },
           "name": {
             "title": "Name",
-            "description": "The member's name.",
+            "description": "The member's name, as it appears in the minutes.",
+            "x-sensitivity": "personal",
             "type": "string",
             "minLength": 1,
             "maxLength": 200
           },
           "seat": {
             "title": "Seat",
-            "description": "Office or seat, for example Chair, District 3 or Independent Director.",
+            "description": "Office or seat.",
             "type": "string",
-            "maxLength": 200
+            "maxLength": 200,
+            "examples": ["Chair", "District 3", "Independent Director"]
           },
           "voting": {
             "title": "Voting member",
-            "description": "Whether the member has a vote (false for ex officio non-voting members).",
+            "description": "Whether the member has a vote (false for ex officio non-voting members, such as a chief executive on a board or a student member on some school boards).",
             "type": "boolean"
           },
           "attendance": {
             "title": "Attendance",
-            "description": "present, remote, absent, excused or arrived-late.",
+            "description": "present; remote (attended by phone or video); absent; excused (absent with the body's leave, which some bodies record differently); or arrived-late (present for this item but not for the whole meeting).",
             "type": "string",
-            "enum": [
-              "present",
-              "remote",
-              "absent",
-              "excused",
-              "arrived-late"
-            ]
+            "enum": ["present", "remote", "absent", "excused", "arrived-late"]
           }
         }
       }
     },
     "agendaItem": {
       "title": "Agenda item",
-      "description": "The item the body took up.",
+      "description": "The item the body took up, as published on the agenda.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "number",
-        "title"
-      ],
+      "required": ["number", "title"],
       "properties": {
         "number": {
           "title": "Number",
-          "description": "The item's number on the agenda, for example 7.b.",
+          "description": "The item's number on the agenda.",
           "type": "string",
           "minLength": 1,
-          "maxLength": 50
+          "maxLength": 50,
+          "examples": ["7.b", "4"]
         },
         "title": {
           "title": "Title",
           "description": "The item's title as published.",
           "type": "string",
           "minLength": 1,
-          "maxLength": 1000
+          "maxLength": 1000,
+          "examples": ["Award of contract for Alder Street water main replacement"]
         },
         "section": {
           "title": "Section",
-          "description": "consent, action, public-hearing, discussion, report or closed-session.",
+          "description": "Where the item was on the agenda: consent (routine items adopted together by one motion without debate; any member may ask to remove an item); action; public-hearing; discussion; report (received for information); or closed-session.",
           "type": "string",
-          "enum": [
-            "consent",
-            "action",
-            "public-hearing",
-            "discussion",
-            "report",
-            "closed-session"
-          ]
+          "enum": ["consent", "action", "public-hearing", "discussion", "report", "closed-session"]
         },
         "summary": {
           "title": "Summary",
           "description": "The staff or sponsor summary of the item.",
+          "x-sensitivity": "free-text",
           "type": "string",
           "maxLength": 20000
         },
         "sponsor": {
           "$ref": "common.schema.json#/$defs/personRef",
-          "description": "Who brought the item."
+          "description": "Who brought the item (a member, a department head, a committee)."
         },
         "attachmentIds": {
           "$ref": "common.schema.json#/$defs/attachmentIds",
-          "description": "Ids of related entries in the record's attachments."
+          "description": "Ids of the item's files in attachments (staff report, draft resolution, presentation)."
         },
         "publicComments": {
           "title": "Public comments",
-          "description": "Comments from the public on the item.",
+          "description": "Comments from the public on the item, summarized as the minutes would.",
           "type": "array",
           "items": {
             "title": "Public comment",
             "description": "One comment.",
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "summary"
-            ],
+            "required": ["summary"],
             "properties": {
               "speaker": {
                 "title": "Speaker",
-                "description": "The speaker's name as given; leave out when they did not give one.",
+                "description": "The speaker's name as they gave it; leave out when they didn't give one. Public comment is often a public record, but publish names only as your body's practice and law allow.",
+                "x-sensitivity": "personal",
                 "type": "string",
                 "maxLength": 200
               },
@@ -328,25 +290,18 @@
                 "title": "Position",
                 "description": "support, oppose or neutral.",
                 "type": "string",
-                "enum": [
-                  "support",
-                  "oppose",
-                  "neutral"
-                ]
+                "enum": ["support", "oppose", "neutral"]
               },
               "format": {
                 "title": "Format",
                 "description": "in-person, remote or written.",
                 "type": "string",
-                "enum": [
-                  "in-person",
-                  "remote",
-                  "written"
-                ]
+                "enum": ["in-person", "remote", "written"]
               },
               "summary": {
                 "title": "Summary",
                 "description": "What the speaker said, in brief.",
+                "x-sensitivity": "free-text",
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 4000
@@ -358,7 +313,7 @@
     },
     "motions": {
       "title": "Motions",
-      "description": "Motions made on the item, in the order they were made.",
+      "description": "Motions made on the item, in the order they were made: the main motion and any secondary motions (amendments, referral, postponement) that applied to it.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/motion"
@@ -366,17 +321,14 @@
     },
     "recusals": {
       "title": "Recusals",
-      "description": "Members who stepped aside from the item, and why.",
+      "description": "Members who stepped aside from the item because of a conflict of interest, and why. A recusal is required or expected by conflict-of-interest law or policy and means the member takes no part. It differs from an abstention, where a member takes part but declines to vote: RONR (45:4) says a member with a direct personal or pecuniary interest not common to other members should not vote, but can't be compelled to abstain.",
       "type": "array",
       "items": {
         "title": "Recusal",
         "description": "One member's recusal.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "memberId",
-          "reason"
-        ],
+        "required": ["memberId", "reason"],
         "properties": {
           "memberId": {
             "$ref": "common.schema.json#/$defs/identifier",
@@ -384,7 +336,7 @@
           },
           "reason": {
             "title": "Reason",
-            "description": "financial-interest, family-relationship, employment, prior-involvement, appearance-of-conflict or other.",
+            "description": "financial-interest; family-relationship; employment (the member or a relative works for a party); prior-involvement (for example having acted as an advocate on the matter); appearance-of-conflict; or other.",
             "type": "string",
             "enum": [
               "financial-interest",
@@ -398,6 +350,7 @@
           "detail": {
             "title": "Detail",
             "description": "The disclosure, as stated on the record.",
+            "x-sensitivity": "free-text",
             "type": "string",
             "maxLength": 4000
           },
@@ -407,7 +360,7 @@
           },
           "leftRoom": {
             "title": "Left the room",
-            "description": "Whether the member left during discussion and vote.",
+            "description": "Whether the member left the room during discussion and vote, as some laws and policies require.",
             "type": "boolean"
           }
         }
@@ -415,16 +368,14 @@
     },
     "outcome": {
       "title": "Outcome",
-      "description": "What the body decided on the item.",
+      "description": "What the body decided on the item, as the minutes and any public summary will state it. The validator checks an approval is backed by an adopted motion.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "result"
-      ],
+      "required": ["result"],
       "properties": {
         "result": {
           "title": "Result",
-          "description": "approved, approved-as-amended, denied, continued, referred, tabled, received-and-filed or no-action.",
+          "description": "approved; approved-as-amended; denied; continued (to a later meeting, see continuedTo); referred (to a committee or staff); tabled (laid aside); received-and-filed (accepted for information, no action); or no-action.",
           "type": "string",
           "enum": [
             "approved",
@@ -439,9 +390,10 @@
         },
         "actionNumber": {
           "title": "Action number",
-          "description": "The resolution, ordinance or minute order number assigned.",
+          "description": "The resolution, ordinance or minute order number assigned to the action.",
           "type": "string",
-          "maxLength": 100
+          "maxLength": 100,
+          "examples": ["Resolution 2026-41"]
         },
         "effectiveOn": {
           "$ref": "common.schema.json#/$defs/date",
@@ -454,6 +406,7 @@
         "summary": {
           "title": "Summary",
           "description": "The decision in plain words, as it will appear in the minutes.",
+          "x-sensitivity": "free-text",
           "type": "string",
           "maxLength": 8000
         }
@@ -461,26 +414,20 @@
     },
     "minutes": {
       "title": "Minutes",
-      "description": "The state of the minutes that record this action.",
+      "description": "The state of the minutes that record this action. Minutes are the official record once the body approves them.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "status"
-      ],
+      "required": ["status"],
       "properties": {
         "status": {
           "title": "Status",
-          "description": "draft, approved or published.",
+          "description": "draft; approved (by the body, usually at its next meeting); or published.",
           "type": "string",
-          "enum": [
-            "draft",
-            "approved",
-            "published"
-          ]
+          "enum": ["draft", "approved", "published"]
         },
         "approvedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the minutes were approved."
+          "description": "When the body approved the minutes."
         },
         "uri": {
           "title": "Location",
@@ -492,11 +439,11 @@
     },
     "status": {
       "$ref": "#/$defs/status",
-      "description": "scheduled, in-progress, decided, minutes-approved or withdrawn."
+      "description": "Where the item is: scheduled (on an agenda); in-progress (taken up, not concluded); decided; minutes-approved (the minutes recording the decision are approved); or withdrawn (removed from the agenda). decided and minutes-approved need an outcome."
     },
     "statusHistory": {
       "title": "Status history",
-      "description": "Every status the record has had, oldest first, each one of the values of status.",
+      "description": "Every status the item has had, oldest first, ending at the current status (the validator checks both).",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/statusChange",
@@ -511,7 +458,7 @@
     },
     "attachments": {
       "title": "Attachments",
-      "description": "Files that belong to the item: staff reports, draft resolutions, presentations.",
+      "description": "Files that belong to the item: staff reports, draft resolutions, bid tabulations, presentations.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/attachment"
@@ -527,42 +474,30 @@
     },
     "extensions": {
       "$ref": "common.schema.json#/$defs/extensions",
-      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>."
+      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>, for example examplecity:councilDistrict."
     }
   },
   "$defs": {
     "status": {
       "title": "Status",
-      "description": "The status values of this format.",
+      "description": "The status values of this format, defined once so status and statusHistory use the same list. Where the item is: scheduled (on an agenda); in-progress (taken up, not concluded); decided; minutes-approved (the minutes recording the decision are approved); or withdrawn (removed from the agenda). decided and minutes-approved need an outcome.",
       "type": "string",
-      "enum": [
-        "scheduled",
-        "in-progress",
-        "decided",
-        "minutes-approved",
-        "withdrawn"
-      ]
+      "enum": ["scheduled", "in-progress", "decided", "minutes-approved", "withdrawn"]
     },
     "motion": {
       "title": "Motion",
-      "description": "A motion, its second, the vote and the result.",
+      "description": "A motion: who made and seconded it, how it was voted on, the threshold it needed and the result.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "id",
-        "kind",
-        "text",
-        "movedBy",
-        "result"
-      ],
+      "required": ["id", "kind", "text", "movedBy", "result"],
       "properties": {
         "id": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "Identifier for the motion, unique within the record."
+          "description": "Identifier for the motion, unique within the record, so secondary motions can point at it."
         },
         "kind": {
           "title": "Kind",
-          "description": "main, amend, substitute, refer, postpone, table, take-from-table, reconsider, rescind or other.",
+          "description": "main (brings business before the body); amend; substitute (an amendment that replaces the whole text); refer (to a committee); postpone (to a set time; postpone indefinitely is other); table (lay on the table); take-from-table; reconsider; rescind (or amend something previously adopted); or other.",
           "type": "string",
           "enum": [
             "main",
@@ -579,14 +514,15 @@
         },
         "text": {
           "title": "Text",
-          "description": "The motion as stated.",
+          "description": "The motion as stated by the mover or as the chair put the question.",
+          "x-sensitivity": "free-text",
           "type": "string",
           "minLength": 1,
           "maxLength": 20000
         },
         "appliesToMotionId": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "The motion this one applies to (for amendments, referrals and other secondary motions)."
+          "description": "The motion this one applies to, for amendments, referrals and other secondary motions. Must name another motion in this record."
         },
         "movedBy": {
           "$ref": "common.schema.json#/$defs/identifier",
@@ -594,47 +530,39 @@
         },
         "secondedBy": {
           "$ref": "common.schema.json#/$defs/identifier",
-          "description": "The member id of the seconder."
+          "description": "The member id of the seconder. Leave out when there was no second or none was needed (RONR's rules for small boards and committees don't require seconds). A member can't second their own motion."
         },
         "voteMethod": {
           "title": "Vote method",
-          "description": "voice, roll-call, show-of-hands, ballot, electronic or unanimous-consent.",
+          "description": "voice; roll-call (each member's vote called and recorded by name); show-of-hands; ballot; electronic; or unanimous-consent (the chair asks if there is any objection and, hearing none, declares the motion adopted; RONR calls this general consent).",
           "type": "string",
-          "enum": [
-            "voice",
-            "roll-call",
-            "show-of-hands",
-            "ballot",
-            "electronic",
-            "unanimous-consent"
-          ]
+          "enum": ["voice", "roll-call", "show-of-hands", "ballot", "electronic", "unanimous-consent"]
         },
         "threshold": {
           "title": "Threshold",
-          "description": "The vote needed to adopt: majority-of-votes-cast, majority-of-members, two-thirds-of-votes-cast, two-thirds-of-members, unanimous or other.",
+          "description": "The vote needed to adopt, as set by RONR, bylaws or law. majority-of-votes-cast: more yes than no votes (RONR's default majority vote; abstentions don't count). two-thirds-of-votes-cast: yes at least twice no (RONR's two-thirds vote). majority-of-members-present and two-thirds-of-members-present: of the members present, so an abstention has the same effect as a no. majority-of-entire-membership and two-thirds-of-entire-membership: of all members in office, present or not. unanimous: no votes against. other: anything else (describe it in extensions).",
           "type": "string",
           "enum": [
             "majority-of-votes-cast",
-            "majority-of-members",
             "two-thirds-of-votes-cast",
-            "two-thirds-of-members",
+            "majority-of-members-present",
+            "two-thirds-of-members-present",
+            "majority-of-entire-membership",
+            "two-thirds-of-entire-membership",
             "unanimous",
             "other"
           ]
         },
         "votes": {
           "title": "Votes",
-          "description": "Each member's vote. Members who were absent or recused are listed with that value so the record is complete.",
+          "description": "Each member's vote. For a roll call, list every voting member, using absent or recused for those who didn't vote, so the record is complete (the validator checks this).",
           "type": "array",
           "items": {
             "title": "Vote",
             "description": "One member's vote.",
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "memberId",
-              "vote"
-            ],
+            "required": ["memberId", "vote"],
             "properties": {
               "memberId": {
                 "$ref": "common.schema.json#/$defs/identifier",
@@ -642,28 +570,19 @@
               },
               "vote": {
                 "title": "Vote",
-                "description": "yes, no, abstain, absent or recused.",
+                "description": "yes; no; abstain (present but declined to vote; RONR doesn't count it as a vote cast); absent (not present for this vote); or recused (stepped aside for a conflict; needs a matching entry in recusals).",
                 "type": "string",
-                "enum": [
-                  "yes",
-                  "no",
-                  "abstain",
-                  "absent",
-                  "recused"
-                ]
+                "enum": ["yes", "no", "abstain", "absent", "recused"]
               }
             }
           }
         },
         "tally": {
           "title": "Tally",
-          "description": "The counted result. Must match the individual votes when they are given.",
+          "description": "The counted result, as announced. Must match the individual votes when both are given.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "yes",
-            "no"
-          ],
+          "required": ["yes", "no"],
           "properties": {
             "yes": {
               "title": "Yes",
@@ -679,19 +598,19 @@
             },
             "abstain": {
               "title": "Abstain",
-              "description": "Abstentions.",
+              "description": "Members who abstained. Counted 0 when left out.",
               "type": "integer",
               "minimum": 0
             },
             "absent": {
               "title": "Absent",
-              "description": "Members absent for the vote.",
+              "description": "Members absent for the vote. Counted 0 when left out.",
               "type": "integer",
               "minimum": 0
             },
             "recused": {
               "title": "Recused",
-              "description": "Members recused from the vote.",
+              "description": "Members recused from the vote. Counted 0 when left out.",
               "type": "integer",
               "minimum": 0
             }
@@ -699,7 +618,7 @@
         },
         "result": {
           "title": "Result",
-          "description": "adopted, failed, withdrawn, ruled-out-of-order, died-for-lack-of-second, tabled, postponed or referred.",
+          "description": "adopted; failed (RONR: the motion is lost); withdrawn (by the mover); ruled-out-of-order (by the chair); died-for-lack-of-second; tabled; postponed; or referred. The last three are for a motion disposed of by a secondary motion. The validator checks adopted and failed against the threshold.",
           "type": "string",
           "enum": [
             "adopted",
@@ -714,7 +633,7 @@
         },
         "decidedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the decision was made."
+          "description": "When the chair announced the result."
         }
       }
     }

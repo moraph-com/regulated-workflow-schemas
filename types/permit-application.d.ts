@@ -1,46 +1,46 @@
 /* Generated from schemas/ by scripts/build-types.mjs. Do not edit by hand: run npm run types. */
 
 /**
- * Who is applying.
+ * Who is applying. Give their role too, since the applicant may be the owner, the contractor or an agent.
  */
 export type Party = {
   [k: string]: unknown;
 };
 /**
- * A person or organization on the application, in a role. Give a person, an organization, or both (a contact at a firm).
+ * A person or organization on the application, in a role. Give a person, an organization, or both (a named contact at a firm). Names and mailing addresses of individuals, such as homeowners, are personal data even where permit records are public.
  */
 export type Party1 = {
   [k: string]: unknown;
 };
 /**
- * Where the work will happen.
+ * Where the work will happen. Give at least one of a parcel number, an address or coordinates; right-of-way work often has an address or coordinates but no parcel.
  */
 export type Site = {
   [k: string]: unknown;
 };
 
 /**
- * An application for a building, land-use or other local-government permit, from submission through plan review, fees, inspections and decision, including the statutory review clock. Informed by common local-government permitting practice and the Building and Land Development Specification (BLDS); the docs map fields to BLDS where they correspond.
+ * One application for a building, trade, land-use, right-of-way or other local-government permit, followed from submission through intake, plan review by discipline and cycle, fees, the statutory review clock, the decision and inspections. Fields that correspond to the Building and Land Development Specification (BLDS), an open data specification for publishing permit data, are mapped in the docs, so a jurisdiction can publish BLDS data from these records. The format follows common local-government practice; it doesn't encode any jurisdiction's code or deadlines.
  */
 export interface PermitApplication {
   /**
-   * The $id of this schema, so readers can tell what the record is.
+   * The `$id` of the schema the record follows, so a reader can tell what the record is without guessing. Optional; recordType and schemaVersion say the same thing.
    */
   $schema?: string;
   /**
-   * Always permit-application.
+   * Always permit-application. Lets a reader (or validate()) tell the format apart from the others in this repository.
    */
   recordType: "permit-application";
   /**
-   * The version of this format the record follows.
+   * The version of this format the record follows. Each version of the schema accepts only its own version string, so a record never silently passes against a schema it wasn't written for.
    */
   schemaVersion: "0.1.0";
   /**
-   * This application's identifier, unique within the system that created it.
+   * This application's identifier, unique within the system that created it. Often the application or case number; the permit number, once issued, is decision.permitNumber (they may be the same).
    */
   id: string;
   /**
-   * Ids for this application in other systems, for example the jurisdiction's permitting system.
+   * Ids for this application in other systems, such as the jurisdiction's permitting system when the record comes from a contractor's or applicant's software, or a state or regional portal.
    */
   externalIds?: ExternalIdentifier[];
   /**
@@ -54,41 +54,41 @@ export interface PermitApplication {
   jurisdiction: Jurisdiction;
   permitType: PermitType;
   /**
-   * What the applicant proposes to do.
+   * What the applicant proposes to do, in the applicant's or the jurisdiction's words. This is what appears on the permit and in published permit data (BLDS Description), so write it to be read by the public.
    */
   description?: string;
   valuation?: Money;
   applicant: Party;
   /**
-   * Owners, contractors, design professionals and agents on the application besides the applicant.
+   * Owners, contractors, design professionals, agents and tenants on the application besides the applicant.
    */
   parties?: Party1[];
   site: Site;
   building?: Building;
   /**
-   * When it was submitted.
+   * When the application was submitted (BLDS AppliedDate is the date part, in the jurisdiction's time zone).
    */
   submittedAt?: string;
   /**
-   * Plans and documents submitted with the application. Each points at an entry in attachments.
+   * Plans and documents submitted with the application. Each points at a file in attachments; a resubmitted plan set is a new entry with a new revision.
    */
   documents?: SubmittedDocument[];
   /**
-   * Fees assessed on the application.
+   * Fees assessed on the application, one line per fee. BLDS Fee is a single total; sum the lines when publishing.
    */
   fees?: Fee[];
   /**
-   * Reviews by each discipline, one entry per discipline per review cycle.
+   * Plan reviews by each discipline, one entry per discipline per review cycle, so the record shows how many rounds of corrections each discipline required.
    */
   reviews?: PlanReview[];
   statutoryClock?: StatutoryReviewClock;
   /**
-   * Inspections of the permitted work.
+   * Inspections of the permitted work, one entry per inspection visit (a failed inspection followed by a re-inspection is two entries).
    */
   inspections?: Inspection[];
   decision?: Decision;
   /**
-   * draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn, expired or revoked.
+   * Where the application is: draft (not yet submitted); submitted; intake-review (checking completeness); incomplete (the applicant must supply more); in-review (plan review); corrections-required; approved; issued; under-inspection; finaled (all inspections passed and the permit closed); denied; withdrawn; expired; or revoked. The docs map these to BLDS StatusCurrentMapped.
    */
   status:
     | "draft"
@@ -106,7 +106,7 @@ export interface PermitApplication {
     | "expired"
     | "revoked";
   /**
-   * Every status the record has had, oldest first, each one of the values of status.
+   * Every status the application has had, oldest first, ending at the current status (the validator checks both). BLDS CompletedDate is the date of the finaled entry.
    */
   statusHistory?: (StatusChange & {
     /**
@@ -129,7 +129,7 @@ export interface PermitApplication {
       | "revoked";
   })[];
   /**
-   * Files that belong to the application: plans, calculations, photos, letters.
+   * Files that belong to the application: plans, calculations, photographs, letters. Plans submitted to a public agency are often public records, but may still contain personal data or security-sensitive details; set classification accordingly.
    */
   attachments?: Attachment[];
   /**
@@ -139,36 +139,36 @@ export interface PermitApplication {
   extensions?: Extensions;
 }
 /**
- * An identifier assigned by another system or registry.
+ * An identifier assigned by another system or registry, kept so a record can be matched to the same thing elsewhere without guessing from names. Use it for registry numbers (a Legal Entity Identifier, a tax id) and for the record's id in a source or destination system.
  */
 export interface ExternalIdentifier {
   /**
-   * The registry or system that assigned the value, for example LEI, EIN, DUNS, UEI, company-number, NPI, or a source system's name.
+   * Who assigned the value: a registry (LEI, EIN, DUNS, UEI, company-number, NPI, CCN) or a system's name (for example riverbend-permits). Use the same spelling every time so values can be matched across records. Not validated against a list, because registries differ by country.
    */
   scheme: string;
   /**
-   * The identifier as the scheme writes it.
+   * The identifier exactly as the scheme writes it, including any punctuation (for example 12-3456789 for an EIN).
    */
   value: string;
 }
 /**
- * The jurisdiction whose permit is sought.
+ * The jurisdiction whose permit is sought, and the department that issues it.
  */
 export interface Jurisdiction {
   /**
-   * Country.
+   * The country.
    */
   country: string;
   /**
-   * State, province or other ISO 3166-2 subdivision.
+   * The state, province or other ISO 3166-2 subdivision, when the rules or the authority are subnational.
    */
   subdivision?: string;
   /**
-   * City, county or district name, as the authority writes it.
+   * The city, county, borough or district, as the authority itself writes its name.
    */
   locality?: string;
   /**
-   * The agency or body with jurisdiction, for example Department of Building Safety.
+   * The agency, department or body that exercises the jurisdiction.
    */
   authority?: string;
 }
@@ -177,7 +177,7 @@ export interface Jurisdiction {
  */
 export interface PermitType {
   /**
-   * building, demolition, electrical, mechanical, plumbing, fire, grading, right-of-way, sign, zoning, land-use, environmental, special-event or other.
+   * The broad kind of permit: building; demolition; electrical; mechanical; plumbing; fire (fire alarm, sprinkler, fire code operational permits); grading (grading, excavation, stormwater); right-of-way (street use, driveway, skip or dumpster, utility work in the street); sign; zoning (zoning clearance, variance); land-use (subdivision, site plan, conditional use); environmental; special-event; or other. The first several match BLDS PermitTypeMapped values (Building, Demolition, Electrical, Mechanical, Plumbing, Grading); BLDS's Roof, Fence and Pool/Spa are building permits here, with the specific type in subtype.
    */
   category:
     | "building"
@@ -195,63 +195,63 @@ export interface PermitType {
     | "special-event"
     | "other";
   /**
-   * The jurisdiction's own permit type name, for example Residential Addition.
+   * The jurisdiction's own name for the permit type, as it appears on the application and the permit. This is BLDS PermitType or PermitTypeDesc.
    */
   subtype?: string;
   /**
-   * new, addition, alteration, repair, demolition, change-of-use or other.
+   * What the work does to the structure: new (new construction); addition; alteration (remodel or tenant improvement); repair (including replacement in kind); demolition; change-of-use (a new occupancy for an existing building); or other. For BLDS WorkClassMapped, new maps to New and the others to Existing.
    */
   workClass?: "new" | "addition" | "alteration" | "repair" | "demolition" | "change-of-use" | "other";
   /**
-   * Whether the work is residential (true) or commercial and other (false).
+   * Whether the work is to a residential building (true) or not (false). Jurisdictions draw this line differently; BLDS PermitClassMapped uses Residential for single-family and duplex only and puts multifamily with commercial, so check the building type before mapping.
    */
   residential?: boolean;
 }
 /**
- * Declared value of the work.
+ * The declared value of the work (BLDS EstProjectCost). Many jurisdictions compute fees from it.
  */
 export interface Money {
   /**
-   * The currency.
+   * The currency the amount is in (ISO 4217).
    */
   currency: string;
   /**
-   * Decimal amount in the currency's major unit, as a string, for example "1250.00" or "-15.5".
+   * The amount in the currency's major unit (dollars, not cents), as a decimal string: an optional minus sign, digits with no leading zeros, and an optional fractional part. No thousands separators, plus signs or exponents. Negative amounts are for refunds and credits. Write as many decimal places as the source system holds; this format doesn't round.
    */
   amount: string;
 }
 /**
- * Facts about the building or structure, for building permits.
+ * Facts about the building or structure, for building permits. Leave out for permits that don't involve a building.
  */
 export interface Building {
   /**
-   * The building code occupancy classification, for example R-3 or B.
+   * The building code occupancy classification, as the adopted code writes it (in the International Building Code, for example R-3 for one- and two-family dwellings or B for business).
    */
   occupancyGroup?: string;
   /**
-   * The building code construction type, for example V-B.
+   * The building code construction type, as the adopted code writes it.
    */
   constructionType?: string;
   /**
-   * Number of stories above grade.
+   * Number of stories above grade plane after the work.
    */
   stories?: number;
   /**
-   * Dwelling units added (negative when removed).
+   * Net dwelling units added by the work: positive when units are added, negative when removed, 0 when unchanged. BLDS HousingUnits is the total units in the building, which is a different number.
    */
   dwellingUnits?: number;
   area?: Area;
 }
 /**
- * Floor area affected by the work.
+ * Floor area affected by the work, with its unit. BLDS TotalSqFt is in square feet; convert square metres before publishing.
  */
 export interface Area {
   /**
-   * The area.
+   * The area, in unit.
    */
   value: number;
   /**
-   * sq-ft or sq-m.
+   * sq-ft (square feet) or sq-m (square metres).
    */
   unit: "sq-ft" | "sq-m";
 }
@@ -260,11 +260,11 @@ export interface Area {
  */
 export interface SubmittedDocument {
   /**
-   * The id of the file in the record's attachments.
+   * The id of the file in the record's attachments. The validator checks it exists.
    */
   attachmentId: string;
   /**
-   * site-plan, architectural-plans, structural-calculations, energy-compliance, mechanical-electrical-plumbing-plans, survey, photographs, owner-authorization, contractor-license, insurance-certificate, environmental-review or other.
+   * site-plan; architectural-plans; structural-calculations; energy-compliance (energy code forms or calculations); mechanical-electrical-plumbing-plans; survey; photographs; owner-authorization (owner's consent for an agent or contractor to apply); contractor-license; insurance-certificate; environmental-review; or other.
    */
   kind:
     | "site-plan"
@@ -280,11 +280,11 @@ export interface SubmittedDocument {
     | "environmental-review"
     | "other";
   /**
-   * Revision number or label, for example 2 or Rev B.
+   * Revision number or label, as written on the plans.
    */
   revision?: string;
   /**
-   * When it was submitted.
+   * When this revision was submitted.
    */
   submittedAt?: string;
 }
@@ -293,7 +293,7 @@ export interface SubmittedDocument {
  */
 export interface Fee {
   /**
-   * The jurisdiction's fee code.
+   * The jurisdiction's fee code from its fee schedule.
    */
   code?: string;
   /**
@@ -302,28 +302,28 @@ export interface Fee {
   description: string;
   amount: Money1;
   /**
-   * assessed, invoiced, paid, waived or refunded.
+   * assessed (calculated, not yet billed); invoiced; paid; waived; or refunded.
    */
   status: "assessed" | "invoiced" | "paid" | "waived" | "refunded";
   /**
-   * When it was paid.
+   * When the fee was paid.
    */
   paidAt?: string;
   /**
-   * The receipt or transaction reference.
+   * The receipt or payment transaction reference.
    */
   receipt?: string;
 }
 /**
- * The fee amount.
+ * The fee amount. Use a negative amount for a credit line.
  */
 export interface Money1 {
   /**
-   * The currency.
+   * The currency the amount is in (ISO 4217).
    */
   currency: string;
   /**
-   * Decimal amount in the currency's major unit, as a string, for example "1250.00" or "-15.5".
+   * The amount in the currency's major unit (dollars, not cents), as a decimal string: an optional minus sign, digits with no leading zeros, and an optional fractional part. No thousands separators, plus signs or exponents. Negative amounts are for refunds and credits. Write as many decimal places as the source system holds; this format doesn't round.
    */
   amount: string;
 }
@@ -332,7 +332,7 @@ export interface Money1 {
  */
 export interface PlanReview {
   /**
-   * zoning, building, structural, fire, electrical, mechanical, plumbing, civil-engineering, environmental, health, historic-preservation, transportation, utilities or other.
+   * The reviewing discipline: zoning; building; structural; fire; electrical; mechanical; plumbing; civil-engineering; environmental; health (environmental health, food service); historic-preservation; transportation; utilities; or other.
    */
   discipline:
     | "zoning"
@@ -350,20 +350,20 @@ export interface PlanReview {
     | "utilities"
     | "other";
   /**
-   * The review cycle, starting at 1; resubmissions start a new cycle.
+   * The review cycle, starting at 1. Each resubmission in response to corrections starts a new cycle.
    */
   cycle: number;
   reviewer?: Person;
   /**
-   * When it started.
+   * When the review started.
    */
   startedAt?: string;
   /**
-   * When it was completed.
+   * When it was completed. Must not be before startedAt.
    */
   completedAt?: string;
   /**
-   * approved, approved-with-conditions, corrections-required, denied or not-applicable.
+   * approved; approved-with-conditions; corrections-required (the applicant must revise and resubmit); denied; or not-applicable (the discipline found nothing to review).
    */
   outcome?: "approved" | "approved-with-conditions" | "corrections-required" | "denied" | "not-applicable";
   /**
@@ -372,31 +372,31 @@ export interface PlanReview {
   comments?: Comment[];
 }
 /**
- * Who reviewed.
+ * Who reviewed (a plans examiner, planner or engineer).
  */
 export interface Person {
   /**
-   * Identifier in the system the reference comes from.
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
   id?: string;
   /**
-   * The person's name as it should appear on the record.
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
    */
   name: string;
   /**
-   * Job title or position, for example Chief Risk Officer.
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
    */
   title?: string;
   /**
-   * The organization the person acts for, by name.
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
    */
   organization?: string;
   /**
-   * Email address.
+   * Work email address, when readers need to contact the person.
    */
   email?: string;
   /**
-   * Phone number, ideally in E.164 form (+15555550123).
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
    */
   phone?: string;
 }
@@ -405,56 +405,56 @@ export interface Person {
  */
 export interface Comment {
   /**
-   * The comment.
+   * The comment, as written to the applicant.
    */
   text: string;
   /**
-   * The plan sheet the comment refers to, for example A2.1.
+   * The plan sheet the comment refers to.
    */
   sheet?: string;
   /**
-   * The code section cited.
+   * The code section cited, as the adopted code numbers it.
    */
   codeSection?: string;
   /**
-   * Whether the comment has been resolved.
+   * Whether the comment has been resolved in a later submission.
    */
   resolved?: boolean;
 }
 /**
- * The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied. startedAt and pauses are instants; days are counted in timeZone's calendar.
+ * The time limit a law, ordinance or policy sets for deciding the application, and the state of the clock. Many jurisdictions have such limits (and some deem a permit approved if the limit passes), with different rules for when the clock starts, which days count and what pauses it. The record states the basis and the counting it applied; it does not compute deadlines. startedAt and pauses are instants with a UTC offset; days are counted in timeZone's calendar, and dueOn is a date in that zone.
  */
 export interface StatutoryReviewClock {
   /**
-   * The law, ordinance or policy that sets the deadline, as cited locally.
+   * The law, ordinance or policy that sets the deadline, cited as the jurisdiction cites it.
    */
   basis: string;
   /**
-   * Days allowed for the decision.
+   * Days allowed for the decision under the basis.
    */
   days: number;
   /**
-   * calendar or business days.
+   * Whether the days are calendar or business days.
    */
   dayType: "calendar" | "business";
   /**
-   * The IANA time zone whose calendar the jurisdiction counts days in, for example America/Chicago or Europe/London. dueOn is a date in this zone; give it whenever dueOn is given, so every system computes the same day.
+   * The IANA time zone whose calendar the jurisdiction counts days in. dueOn is a date in this zone, so every system computes the same day for a deadline near midnight. Required whenever dueOn is given.
    */
   timeZone?: string;
   /**
-   * When it started.
+   * When the clock started (often when the application was deemed complete, not when it was submitted).
    */
   startedAt?: string;
   /**
-   * The local date (in timeZone) by which the decision is due under the basis, after pauses.
+   * The date, in timeZone, by which the decision is due under the basis, after pauses.
    */
   dueOn?: string;
   /**
-   * Periods when the clock stopped, for example while waiting for the applicant.
+   * Periods when the clock stopped, for example while waiting for the applicant to respond to corrections.
    */
   pauses?: Pause[];
   /**
-   * What the basis says happens when the deadline passes: deemed-approved, fee-refund, escalation, none or unspecified.
+   * What the basis says happens when the deadline passes: deemed-approved; fee-refund; escalation (to a supervisor or another body); none; or unspecified (the basis doesn't say, or nobody has checked).
    */
   consequenceIfMissed?: "deemed-approved" | "fee-refund" | "escalation" | "none" | "unspecified";
 }
@@ -467,11 +467,11 @@ export interface Pause {
    */
   from: string;
   /**
-   * When the pause ended; leave out while it continues.
+   * When the pause ended; leave out while it continues. Must not be before from.
    */
   to?: string;
   /**
-   * awaiting-applicant, fees-outstanding, applicant-request, third-party-review or other.
+   * awaiting-applicant (corrections or information requested); fees-outstanding; applicant-request (the applicant asked for more time); third-party-review (an outside agency's review that the basis allows to pause the clock); or other.
    */
   reason: "awaiting-applicant" | "fees-outstanding" | "applicant-request" | "third-party-review" | "other";
 }
@@ -480,7 +480,7 @@ export interface Pause {
  */
 export interface Inspection {
   /**
-   * The inspection, as the jurisdiction names it, for example Footing or Final Electrical.
+   * The inspection, as the jurisdiction names it on the permit card.
    */
   type: string;
   /**
@@ -493,15 +493,15 @@ export interface Inspection {
   scheduledFor?: string;
   inspector?: Person1;
   /**
-   * scheduled, passed, failed, partial, cancelled or no-access.
+   * scheduled (not yet done); passed; failed (correction and re-inspection needed); partial (part of the work approved); cancelled; or no-access (the inspector couldn't get to the work).
    */
   result: "scheduled" | "passed" | "failed" | "partial" | "cancelled" | "no-access";
   /**
-   * When it was completed.
+   * When the inspection was done.
    */
   completedAt?: string;
   /**
-   * The inspector's notes.
+   * The inspector's notes and any corrections required.
    */
   notes?: string;
 }
@@ -510,188 +510,188 @@ export interface Inspection {
  */
 export interface Person1 {
   /**
-   * Identifier in the system the reference comes from.
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
   id?: string;
   /**
-   * The person's name as it should appear on the record.
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
    */
   name: string;
   /**
-   * Job title or position, for example Chief Risk Officer.
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
    */
   title?: string;
   /**
-   * The organization the person acts for, by name.
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
    */
   organization?: string;
   /**
-   * Email address.
+   * Work email address, when readers need to contact the person.
    */
   email?: string;
   /**
-   * Phone number, ideally in E.164 form (+15555550123).
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
    */
   phone?: string;
 }
 /**
- * The jurisdiction's decision on the application.
+ * The jurisdiction's decision on the application. An issued permit's number, conditions and expiry are here.
  */
 export interface Decision {
   /**
-   * issued, approved (approved but not yet issued, for example pending fees), denied, withdrawn, expired or revoked.
+   * issued (the permit is issued; permitNumber is required); approved (approved but not yet issued, for example while fees are unpaid); denied; withdrawn (by the applicant); expired (the application lapsed, or the issued permit expired before final); or revoked.
    */
   outcome: "issued" | "approved" | "denied" | "withdrawn" | "expired" | "revoked";
   /**
-   * When the decision was made.
+   * When the decision was made. For an issued permit, BLDS IssuedDate is the date part in the jurisdiction's time zone.
    */
   decidedAt: string;
   decidedBy?: Person2;
   /**
-   * The number of the issued permit. Required when the outcome is issued.
+   * The number of the issued permit (BLDS PermitNum). Required when the outcome is issued.
    */
   permitNumber?: string;
   /**
-   * Conditions of approval.
+   * Conditions of approval, each as stated on the permit.
    */
   conditions?: string[];
   /**
-   * Reasons for a denial or revocation.
+   * Reasons for a denial or revocation, as given to the applicant. Usually needed for an appeal.
    */
   reasons?: string;
   /**
-   * When it expires.
+   * When the permit (or the approval) expires if work doesn't start or progress (BLDS ExpiresDate). Must not be before the decision.
    */
   expiresOn?: string;
   /**
-   * Last day to file an appeal.
+   * The last day to file an appeal of the decision.
    */
   appealDeadline?: string;
 }
 /**
- * Who decided.
+ * Who decided, usually by title (Building Official, Planning Director).
  */
 export interface Person2 {
   /**
-   * Identifier in the system the reference comes from.
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
   id?: string;
   /**
-   * The person's name as it should appear on the record.
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
    */
   name: string;
   /**
-   * Job title or position, for example Chief Risk Officer.
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
    */
   title?: string;
   /**
-   * The organization the person acts for, by name.
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
    */
   organization?: string;
   /**
-   * Email address.
+   * Work email address, when readers need to contact the person.
    */
   email?: string;
   /**
-   * Phone number, ideally in E.164 form (+15555550123).
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
    */
   phone?: string;
 }
 /**
- * One change of the record's status.
+ * One change of the record's status: the new status, when, who made it and why. Each format lists its own status values and limits this field to them.
  */
 export interface StatusChange {
   /**
-   * The status the record moved to. Each format limits this to its own status values.
+   * The status the record moved to.
    */
   status: string;
   /**
-   * When it happened.
+   * When the status changed.
    */
   at: string;
   by?: Person3;
   /**
-   * Why the status changed.
+   * Why the status changed, in a sentence, especially for changes a reader wouldn't expect (a reopened review, a withdrawn item).
    */
   reason?: string;
 }
 /**
- * Who made the change.
+ * Who changed the status. Leave out where naming the person would break a promise of anonymity (see patient-safety-incident).
  */
 export interface Person3 {
   /**
-   * Identifier in the system the reference comes from.
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
   id?: string;
   /**
-   * The person's name as it should appear on the record.
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
    */
   name: string;
   /**
-   * Job title or position, for example Chief Risk Officer.
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
    */
   title?: string;
   /**
-   * The organization the person acts for, by name.
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
    */
   organization?: string;
   /**
-   * Email address.
+   * Work email address, when readers need to contact the person.
    */
   email?: string;
   /**
-   * Phone number, ideally in E.164 form (+15555550123).
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
    */
   phone?: string;
 }
 /**
- * A document or file that belongs to the record. The SHA-256 digest lets anyone confirm the file they hold is the one the record refers to.
+ * A file that belongs to the record: a report, a plan set, a staff report, a photograph. The record carries the file's SHA-256 digest rather than the file itself, so anyone holding a copy can confirm it is byte for byte the file the record refers to, and the record stays small. Other parts of the record point at attachments by id (the validator checks those ids exist).
  */
 export interface Attachment {
   /**
-   * Identifier in the system the reference comes from.
+   * Identifier for the attachment, unique within the record's attachments, used by documents, assessments and agenda items to point at it.
    */
   id: string;
   /**
-   * What the file is, in a few words.
+   * What the file is, in a few words a reader will recognize.
    */
   title: string;
   /**
-   * IANA media type, for example application/pdf.
+   * The file's IANA media type (MIME type), so readers know how to open it.
    */
   mediaType: string;
   /**
-   * Lower-case hex SHA-256 digest of the file's bytes.
+   * The SHA-256 digest of the file's exact bytes, as 64 lower-case hexadecimal characters (what `sha256sum` or `shasum -a 256` prints). Any change to the file, even re-saving it, changes the digest.
    */
   sha256: string;
   /**
-   * The file's size in bytes.
+   * The file's size in bytes. Optional; useful for checking a transfer before computing the digest.
    */
   byteSize?: number;
   /**
-   * Where an authorized reader can fetch the file. Records shared outside the organization should not carry links that grant access by themselves.
+   * Where an authorized reader can fetch the file, as an absolute URI. Records often travel further than their files should: don't put pre-signed or token-bearing links (that grant access by themselves) in records shared outside the organization.
    */
   uri?: string;
   /**
-   * How the file may be shared: public, internal, confidential or restricted.
+   * How widely the file may be shared. public: may be published (a staff report, issued plans). internal: staff of the organization only. confidential: named roles only (a vendor's SOC report under NDA). restricted: the most sensitive (security test results, anything with health information). Organizations map their own labels onto these four.
    */
   classification?: "public" | "internal" | "confidential" | "restricted";
   /**
-   * When the file was added.
+   * When the file was added to the record.
    */
   addedAt?: string;
 }
 /**
- * One recorded action on the record: who did what, when. Systems append entries and never rewrite them.
+ * One recorded action on the record: who did what, when, and to which field. Systems append entries and never rewrite them, so the trail shows how the record came to say what it says. The audit trail records actions; the status history records only status changes.
  */
 export interface AuditEntry {
   /**
-   * When it happened.
+   * When the action happened.
    */
   at: string;
   actor: Person4;
   /**
-   * What happened, as a short verb phrase, for example created, field-changed, approved, exported.
+   * What happened, as a short lower-case verb phrase. Use the same vocabulary across records so trails can be filtered; created, field-changed, attachment-added, approved, exported and viewed cover most systems.
    */
   action: string;
   /**
@@ -699,7 +699,7 @@ export interface AuditEntry {
    */
   field?: string;
   /**
-   * The previous value, as text. Leave out for sensitive fields.
+   * The previous value, as text. Leave out for sensitive fields (narratives, personal data), so the trail doesn't keep a copy of what was deliberately removed.
    */
   from?: string;
   /**
@@ -707,44 +707,44 @@ export interface AuditEntry {
    */
   to?: string;
   /**
-   * Free-text context for the action.
+   * Free-text context for the action, such as why a value was corrected.
    */
   note?: string;
   /**
-   * The application that recorded the action.
+   * The application that recorded the action, so entries merged from several systems can be traced.
    */
   system?: string;
 }
 /**
- * Who acted.
+ * Who acted: a person, or a system account named as a person reference (for example name: Nightly import).
  */
 export interface Person4 {
   /**
-   * Identifier in the system the reference comes from.
+   * The person's id in the system the reference comes from (an HR system, a directory, a member roster), so the same person can be matched across records without relying on the spelling of their name.
    */
   id?: string;
   /**
-   * The person's name as it should appear on the record.
+   * The person's name as it should appear on the record, in the order and script the person uses. A role description (Building Official, Charge nurse) is acceptable where the record shouldn't name an individual.
    */
   name: string;
   /**
-   * Job title or position, for example Chief Risk Officer.
+   * Job title or position, for example Chief Risk Officer or Plans Examiner. Often more useful to a later reader than the name, because people change jobs.
    */
   title?: string;
   /**
-   * The organization the person acts for, by name.
+   * The name of the organization the person acts for, when it isn't obvious from the record (for example an outside engineer on a permit).
    */
   organization?: string;
   /**
-   * Email address.
+   * Work email address, when readers need to contact the person.
    */
   email?: string;
   /**
-   * Phone number, ideally in E.164 form (+15555550123).
+   * Work phone number, ideally in E.164 international form (+ then country code and number, no spaces), which every phone system can dial. Free text is accepted because extensions and local formats are common.
    */
   phone?: string;
 }
 /**
- * Local fields this format doesn't define, namespaced as <namespace>:<field>.
+ * Local fields this format doesn't define, namespaced as <namespace>:<field>, for example examplecity:councilDistrict.
  */
 export interface Extensions {}

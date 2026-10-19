@@ -1,8 +1,10 @@
 {
   "reason": "An incident is, by the AHRQ Common Formats definition, an event that reached the patient; one that did not is a near miss.",
-  "expect": {
-    "source": "rule",
-    "keyword": "incident-reached-patient",
-    "path": "/reachedPatient"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "incident-reached-patient",
+      "path": "/reachedPatient"
+    }
+  ]
 }

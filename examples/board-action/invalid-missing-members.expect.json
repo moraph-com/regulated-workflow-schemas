@@ -1,8 +1,10 @@
 {
   "reason": "Every board action lists the body's members, so votes can be checked.",
-  "expect": {
-    "source": "schema",
-    "keyword": "required",
-    "path": ""
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "required",
+      "path": ""
+    }
+  ]
 }

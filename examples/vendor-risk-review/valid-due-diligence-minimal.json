@@ -13,17 +13,11 @@
       "supportsCriticalActivity": false
     }
   ],
-  "dataCategories": [
-    "personal-data",
-    "confidential"
-  ],
+  "dataCategories": ["personal-data", "confidential"],
   "access": {
     "systemAccess": "none",
     "hostsData": true,
-    "dataLocations": [
-      "GB",
-      "IE"
-    ]
+    "dataLocations": ["GB", "IE"]
   },
   "criticality": "moderate",
   "inherentRisk": {

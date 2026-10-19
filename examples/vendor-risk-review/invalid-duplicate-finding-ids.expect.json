@@ -1,8 +1,10 @@
 {
   "reason": "Two findings share an id, so anything that refers to the finding by id is ambiguous.",
-  "expect": {
-    "source": "rule",
-    "keyword": "unique-ids",
-    "path": "/findings/1/id"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "unique-ids",
+      "path": "/findings/1/id"
+    }
+  ]
 }

@@ -1,0 +1,10 @@
+{
+  "reason": "statusHistory must be oldest first; pending-approval is dated before the entries above it.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "history-in-order",
+      "path": "/statusHistory/2/at"
+    }
+  ]
+}

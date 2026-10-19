@@ -1,8 +1,10 @@
 {
   "reason": "The site must be identified by a parcel number, an address or coordinates.",
-  "expect": {
-    "source": "schema",
-    "keyword": "anyOf",
-    "path": "/site"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "anyOf",
+      "path": "/site"
+    }
+  ]
 }

@@ -21,9 +21,7 @@
   },
   "site": {
     "address": {
-      "lines": [
-        "14 Example Terrace"
-      ],
+      "lines": ["14 Example Terrace"],
       "locality": "Example Town",
       "postalCode": "ZZ1 1ZZ",
       "country": "GB"

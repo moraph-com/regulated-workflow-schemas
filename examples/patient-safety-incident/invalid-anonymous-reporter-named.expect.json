@@ -1,0 +1,10 @@
+{
+  "reason": "The reporter chose anonymity, but the submission entry in statusHistory names them.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "anonymous-not-named",
+      "path": "/statusHistory/0/by"
+    }
+  ]
+}

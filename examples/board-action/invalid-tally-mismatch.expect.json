@@ -1,8 +1,10 @@
 {
   "reason": "The tally must agree with the individual votes.",
-  "expect": {
-    "source": "rule",
-    "keyword": "tally-matches-votes",
-    "path": "/motions/0/tally/yes"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "tally-matches-votes",
+      "path": "/motions/0/tally/yes"
+    }
+  ]
 }

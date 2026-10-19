@@ -6,7 +6,7 @@
   "createdAt": "2026-02-02T14:10:00Z",
   "updatedAt": "2026-03-18T19:45:00Z",
   "reviewingOrganization": {
-    "name": "Example Community Bank",
+    "name": "Example Community Bank (fictional)",
     "country": "US"
   },
   "vendor": {
@@ -40,17 +40,11 @@
       }
     }
   ],
-  "dataCategories": [
-    "personal-data",
-    "sensitive-personal-data",
-    "nonpublic-personal-information"
-  ],
+  "dataCategories": ["personal-data", "sensitive-personal-data"],
   "access": {
     "systemAccess": "none",
     "hostsData": true,
-    "dataLocations": [
-      "US"
-    ],
+    "dataLocations": ["US"],
     "subcontractors": [
       {
         "name": "Cloudwell Hosting (fictional)",
@@ -99,7 +93,7 @@
     {
       "id": "a1",
       "type": "independent-report-review",
-      "evidenceName": "SOC 2 Type II report",
+      "evidenceName": "SOC 2 Type 2 report",
       "periodStart": "2025-01-01",
       "periodEnd": "2025-12-31",
       "performedBy": {
@@ -108,9 +102,7 @@
       },
       "completedAt": "2026-02-20T16:00:00Z",
       "result": "satisfactory-with-findings",
-      "attachmentIds": [
-        "att-soc2"
-      ]
+      "attachmentIds": ["att-soc2"]
     },
     {
       "id": "a2",
@@ -161,17 +153,11 @@
     "frequency": "annual",
     "lastReviewedOn": "2026-03-18",
     "nextReviewDue": "2027-03-18",
-    "triggers": [
-      "security incident notice",
-      "change of control",
-      "material change to the service"
-    ]
+    "triggers": ["security incident notice", "change of control", "material change to the service"]
   },
   "decision": {
     "outcome": "approved-with-conditions",
-    "conditions": [
-      "Close finding f1 by 2026-05-15."
-    ],
+    "conditions": ["Close finding f1 by 2026-05-15."],
     "decidedAt": "2026-03-18T19:30:00Z"
   },
   "approvals": [
@@ -215,7 +201,7 @@
   "attachments": [
     {
       "id": "att-soc2",
-      "title": "Ledgerline SOC 2 Type II report, 2025",
+      "title": "Ledgerline SOC 2 Type 2 report, 2025",
       "mediaType": "application/pdf",
       "sha256": "36cf40ebacf614ec3dc6387b0b0a95c9b595f6ba4adefae20c2178deb6a17fda",
       "byteSize": 2481334,

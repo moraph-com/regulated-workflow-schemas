@@ -1,0 +1,10 @@
+{
+  "reason": "The status history ends at issued, but the current status is under-inspection; the move to under-inspection is missing.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "history-ends-at-status",
+      "path": "/statusHistory/2/status"
+    }
+  ]
+}

@@ -2,43 +2,35 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/permit-application.schema.json",
   "title": "Permit application",
-  "description": "An application for a building, land-use or other local-government permit, from submission through plan review, fees, inspections and decision, including the statutory review clock. Informed by common local-government permitting practice and the Building and Land Development Specification (BLDS); the docs map fields to BLDS where they correspond.",
+  "description": "One application for a building, trade, land-use, right-of-way or other local-government permit, followed from submission through intake, plan review by discipline and cycle, fees, the statutory review clock, the decision and inspections. Fields that correspond to the Building and Land Development Specification (BLDS), an open data specification for publishing permit data, are mapped in the docs, so a jurisdiction can publish BLDS data from these records. The format follows common local-government practice; it doesn't encode any jurisdiction's code or deadlines.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "recordType",
-    "schemaVersion",
-    "id",
-    "jurisdiction",
-    "permitType",
-    "applicant",
-    "site",
-    "status"
-  ],
+  "required": ["recordType", "schemaVersion", "id", "jurisdiction", "permitType", "applicant", "site", "status"],
   "properties": {
     "$schema": {
       "title": "Schema",
-      "description": "The $id of this schema, so readers can tell what the record is.",
+      "description": "The `$id` of the schema the record follows, so a reader can tell what the record is without guessing. Optional; recordType and schemaVersion say the same thing.",
       "type": "string",
       "format": "uri"
     },
     "recordType": {
       "title": "Record type",
-      "description": "Always permit-application.",
+      "description": "Always permit-application. Lets a reader (or validate()) tell the format apart from the others in this repository.",
       "const": "permit-application"
     },
     "schemaVersion": {
       "title": "Schema version",
-      "description": "The version of this format the record follows.",
+      "description": "The version of this format the record follows. Each version of the schema accepts only its own version string, so a record never silently passes against a schema it wasn't written for.",
       "const": "0.1.0"
     },
     "id": {
       "$ref": "common.schema.json#/$defs/identifier",
-      "description": "This application's identifier, unique within the system that created it."
+      "description": "This application's identifier, unique within the system that created it. Often the application or case number; the permit number, once issued, is decision.permitNumber (they may be the same).",
+      "examples": ["BLD-2026-004417"]
     },
     "externalIds": {
       "title": "External identifiers",
-      "description": "Ids for this application in other systems, for example the jurisdiction's permitting system.",
+      "description": "Ids for this application in other systems, such as the jurisdiction's permitting system when the record comes from a contractor's or applicant's software, or a state or regional portal.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/externalId"
@@ -54,20 +46,18 @@
     },
     "jurisdiction": {
       "$ref": "common.schema.json#/$defs/jurisdiction",
-      "description": "The jurisdiction whose permit is sought."
+      "description": "The jurisdiction whose permit is sought, and the department that issues it."
     },
     "permitType": {
       "title": "Permit type",
       "description": "What kind of permit is sought.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "category"
-      ],
+      "required": ["category"],
       "properties": {
         "category": {
           "title": "Category",
-          "description": "building, demolition, electrical, mechanical, plumbing, fire, grading, right-of-way, sign, zoning, land-use, environmental, special-event or other.",
+          "description": "The broad kind of permit: building; demolition; electrical; mechanical; plumbing; fire (fire alarm, sprinkler, fire code operational permits); grading (grading, excavation, stormwater); right-of-way (street use, driveway, skip or dumpster, utility work in the street); sign; zoning (zoning clearance, variance); land-use (subdivision, site plan, conditional use); environmental; special-event; or other. The first several match BLDS PermitTypeMapped values (Building, Demolition, Electrical, Mechanical, Plumbing, Grading); BLDS's Roof, Fence and Pool/Spa are building permits here, with the specific type in subtype.",
           "type": "string",
           "enum": [
             "building",
@@ -88,48 +78,43 @@
         },
         "subtype": {
           "title": "Subtype",
-          "description": "The jurisdiction's own permit type name, for example Residential Addition.",
+          "description": "The jurisdiction's own name for the permit type, as it appears on the application and the permit. This is BLDS PermitType or PermitTypeDesc.",
           "type": "string",
-          "maxLength": 200
+          "maxLength": 200,
+          "examples": ["Residential Addition", "Skip on the highway", "Roof Replacement"]
         },
         "workClass": {
           "title": "Work class",
-          "description": "new, addition, alteration, repair, demolition, change-of-use or other.",
+          "description": "What the work does to the structure: new (new construction); addition; alteration (remodel or tenant improvement); repair (including replacement in kind); demolition; change-of-use (a new occupancy for an existing building); or other. For BLDS WorkClassMapped, new maps to New and the others to Existing.",
           "type": "string",
-          "enum": [
-            "new",
-            "addition",
-            "alteration",
-            "repair",
-            "demolition",
-            "change-of-use",
-            "other"
-          ]
+          "enum": ["new", "addition", "alteration", "repair", "demolition", "change-of-use", "other"]
         },
         "residential": {
           "title": "Residential",
-          "description": "Whether the work is residential (true) or commercial and other (false).",
+          "description": "Whether the work is to a residential building (true) or not (false). Jurisdictions draw this line differently; BLDS PermitClassMapped uses Residential for single-family and duplex only and puts multifamily with commercial, so check the building type before mapping.",
           "type": "boolean"
         }
       }
     },
     "description": {
       "title": "Description of work",
-      "description": "What the applicant proposes to do.",
+      "description": "What the applicant proposes to do, in the applicant's or the jurisdiction's words. This is what appears on the permit and in published permit data (BLDS Description), so write it to be read by the public.",
+      "x-sensitivity": "free-text",
       "type": "string",
-      "maxLength": 8000
+      "maxLength": 8000,
+      "examples": ["Single-story 420 sq ft rear addition with new bathroom; relocate water heater."]
     },
     "valuation": {
       "$ref": "common.schema.json#/$defs/money",
-      "description": "Declared value of the work."
+      "description": "The declared value of the work (BLDS EstProjectCost). Many jurisdictions compute fees from it."
     },
     "applicant": {
       "$ref": "#/$defs/party",
-      "description": "Who is applying."
+      "description": "Who is applying. Give their role too, since the applicant may be the owner, the contractor or an agent."
     },
     "parties": {
       "title": "Other parties",
-      "description": "Owners, contractors, design professionals and agents on the application besides the applicant.",
+      "description": "Owners, contractors, design professionals, agents and tenants on the application besides the applicant.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/party"
@@ -137,113 +122,106 @@
     },
     "site": {
       "title": "Site",
-      "description": "Where the work will happen.",
+      "description": "Where the work will happen. Give at least one of a parcel number, an address or coordinates; right-of-way work often has an address or coordinates but no parcel.",
       "type": "object",
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "parcelNumber"
-          ]
+          "required": ["parcelNumber"]
         },
         {
-          "required": [
-            "address"
-          ]
+          "required": ["address"]
         },
         {
-          "required": [
-            "location"
-          ]
+          "required": ["location"]
         }
       ],
       "properties": {
         "parcelNumber": {
           "title": "Parcel number",
-          "description": "The assessor's parcel number (APN) or equivalent land identifier.",
+          "description": "The identifier of the land parcel used for tax assessment: the assessor's parcel number (APN), parcel identification number (PIN), tax id or equivalent (BLDS PIN). Written as the assessor writes it.",
           "type": "string",
-          "maxLength": 100
+          "maxLength": 100,
+          "examples": ["12-34-56-000-0100"]
         },
         "address": {
           "$ref": "common.schema.json#/$defs/address",
-          "description": "The site's street address."
+          "description": "The site's street address (BLDS OriginalAddress1, OriginalCity, OriginalState, OriginalZip)."
         },
         "location": {
           "$ref": "common.schema.json#/$defs/geoPoint",
-          "description": "The site's coordinates."
+          "description": "The site's coordinates (BLDS Latitude and Longitude), for mapping and for sites without an address."
         },
         "zoning": {
           "title": "Zoning",
           "description": "The parcel's zoning designation, as the jurisdiction writes it.",
           "type": "string",
-          "maxLength": 100
+          "maxLength": 100,
+          "examples": ["R-1", "C-2"]
         },
         "floodZone": {
           "title": "Flood zone",
-          "description": "The flood hazard zone, if mapped, for example AE.",
+          "description": "The flood hazard zone, if the site is mapped, as shown on the flood map (in the US, the FEMA Flood Insurance Rate Map zone).",
           "type": "string",
-          "maxLength": 50
+          "maxLength": 50,
+          "examples": ["AE", "X"]
         },
         "historicDistrict": {
           "title": "Historic district",
-          "description": "Whether the site is in a designated historic district.",
+          "description": "Whether the site is in a designated historic district, which usually adds a historic preservation review.",
           "type": "boolean"
         }
       }
     },
     "building": {
       "title": "Building",
-      "description": "Facts about the building or structure, for building permits.",
+      "description": "Facts about the building or structure, for building permits. Leave out for permits that don't involve a building.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "occupancyGroup": {
           "title": "Occupancy group",
-          "description": "The building code occupancy classification, for example R-3 or B.",
+          "description": "The building code occupancy classification, as the adopted code writes it (in the International Building Code, for example R-3 for one- and two-family dwellings or B for business).",
           "type": "string",
-          "maxLength": 20
+          "maxLength": 20,
+          "examples": ["R-3", "B", "A-2"]
         },
         "constructionType": {
           "title": "Construction type",
-          "description": "The building code construction type, for example V-B.",
+          "description": "The building code construction type, as the adopted code writes it.",
           "type": "string",
-          "maxLength": 20
+          "maxLength": 20,
+          "examples": ["V-B", "II-A"]
         },
         "stories": {
           "title": "Stories",
-          "description": "Number of stories above grade.",
+          "description": "Number of stories above grade plane after the work.",
           "type": "integer",
           "minimum": 0
         },
         "dwellingUnits": {
           "title": "Dwelling units",
-          "description": "Dwelling units added (negative when removed).",
+          "description": "Net dwelling units added by the work: positive when units are added, negative when removed, 0 when unchanged. BLDS HousingUnits is the total units in the building, which is a different number.",
           "type": "integer"
         },
         "area": {
           "title": "Area",
-          "description": "Floor area affected by the work.",
+          "description": "Floor area affected by the work, with its unit. BLDS TotalSqFt is in square feet; convert square metres before publishing.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "value",
-            "unit"
-          ],
+          "required": ["value", "unit"],
           "properties": {
             "value": {
               "title": "Value",
-              "description": "The area.",
+              "description": "The area, in unit.",
               "type": "number",
               "minimum": 0
             },
             "unit": {
               "title": "Unit",
-              "description": "sq-ft or sq-m.",
+              "description": "sq-ft (square feet) or sq-m (square metres).",
               "type": "string",
-              "enum": [
-                "sq-ft",
-                "sq-m"
-              ]
+              "enum": ["sq-ft", "sq-m"]
             }
           }
         }
@@ -251,29 +229,26 @@
     },
     "submittedAt": {
       "$ref": "common.schema.json#/$defs/dateTime",
-      "description": "When it was submitted."
+      "description": "When the application was submitted (BLDS AppliedDate is the date part, in the jurisdiction's time zone)."
     },
     "documents": {
       "title": "Submitted documents",
-      "description": "Plans and documents submitted with the application. Each points at an entry in attachments.",
+      "description": "Plans and documents submitted with the application. Each points at a file in attachments; a resubmitted plan set is a new entry with a new revision.",
       "type": "array",
       "items": {
         "title": "Submitted document",
         "description": "One submitted document.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "attachmentId",
-          "kind"
-        ],
+        "required": ["attachmentId", "kind"],
         "properties": {
           "attachmentId": {
             "$ref": "common.schema.json#/$defs/identifier",
-            "description": "The id of the file in the record's attachments."
+            "description": "The id of the file in the record's attachments. The validator checks it exists."
           },
           "kind": {
             "title": "Kind",
-            "description": "site-plan, architectural-plans, structural-calculations, energy-compliance, mechanical-electrical-plumbing-plans, survey, photographs, owner-authorization, contractor-license, insurance-certificate, environmental-review or other.",
+            "description": "site-plan; architectural-plans; structural-calculations; energy-compliance (energy code forms or calculations); mechanical-electrical-plumbing-plans; survey; photographs; owner-authorization (owner's consent for an agent or contractor to apply); contractor-license; insurance-certificate; environmental-review; or other.",
             "type": "string",
             "enum": [
               "site-plan",
@@ -292,68 +267,61 @@
           },
           "revision": {
             "title": "Revision",
-            "description": "Revision number or label, for example 2 or Rev B.",
+            "description": "Revision number or label, as written on the plans.",
             "type": "string",
-            "maxLength": 50
+            "maxLength": 50,
+            "examples": ["2", "Rev B"]
           },
           "submittedAt": {
             "$ref": "common.schema.json#/$defs/dateTime",
-            "description": "When it was submitted."
+            "description": "When this revision was submitted."
           }
         }
       }
     },
     "fees": {
       "title": "Fees",
-      "description": "Fees assessed on the application.",
+      "description": "Fees assessed on the application, one line per fee. BLDS Fee is a single total; sum the lines when publishing.",
       "type": "array",
       "items": {
         "title": "Fee",
         "description": "One fee line.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "description",
-          "amount",
-          "status"
-        ],
+        "required": ["description", "amount", "status"],
         "properties": {
           "code": {
             "title": "Code",
-            "description": "The jurisdiction's fee code.",
+            "description": "The jurisdiction's fee code from its fee schedule.",
             "type": "string",
-            "maxLength": 50
+            "maxLength": 50,
+            "examples": ["BP-RES"]
           },
           "description": {
             "title": "Description",
             "description": "What the fee is for.",
             "type": "string",
             "minLength": 1,
-            "maxLength": 300
+            "maxLength": 300,
+            "examples": ["Building permit fee", "Plan review fee"]
           },
           "amount": {
             "$ref": "common.schema.json#/$defs/money",
-            "description": "The fee amount."
+            "description": "The fee amount. Use a negative amount for a credit line."
           },
           "status": {
             "title": "Status",
-            "description": "assessed, invoiced, paid, waived or refunded.",
+            "description": "assessed (calculated, not yet billed); invoiced; paid; waived; or refunded.",
             "type": "string",
-            "enum": [
-              "assessed",
-              "invoiced",
-              "paid",
-              "waived",
-              "refunded"
-            ]
+            "enum": ["assessed", "invoiced", "paid", "waived", "refunded"]
           },
           "paidAt": {
             "$ref": "common.schema.json#/$defs/dateTime",
-            "description": "When it was paid."
+            "description": "When the fee was paid."
           },
           "receipt": {
             "title": "Receipt",
-            "description": "The receipt or transaction reference.",
+            "description": "The receipt or payment transaction reference.",
             "type": "string",
             "maxLength": 100
           }
@@ -362,21 +330,18 @@
     },
     "reviews": {
       "title": "Plan reviews",
-      "description": "Reviews by each discipline, one entry per discipline per review cycle.",
+      "description": "Plan reviews by each discipline, one entry per discipline per review cycle, so the record shows how many rounds of corrections each discipline required.",
       "type": "array",
       "items": {
         "title": "Plan review",
         "description": "One discipline's review in one cycle.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "discipline",
-          "cycle"
-        ],
+        "required": ["discipline", "cycle"],
         "properties": {
           "discipline": {
             "title": "Discipline",
-            "description": "zoning, building, structural, fire, electrical, mechanical, plumbing, civil-engineering, environmental, health, historic-preservation, transportation, utilities or other.",
+            "description": "The reviewing discipline: zoning; building; structural; fire; electrical; mechanical; plumbing; civil-engineering; environmental; health (environmental health, food service); historic-preservation; transportation; utilities; or other.",
             "type": "string",
             "enum": [
               "zoning",
@@ -397,33 +362,27 @@
           },
           "cycle": {
             "title": "Cycle",
-            "description": "The review cycle, starting at 1; resubmissions start a new cycle.",
+            "description": "The review cycle, starting at 1. Each resubmission in response to corrections starts a new cycle.",
             "type": "integer",
             "minimum": 1
           },
           "reviewer": {
             "$ref": "common.schema.json#/$defs/personRef",
-            "description": "Who reviewed."
+            "description": "Who reviewed (a plans examiner, planner or engineer)."
           },
           "startedAt": {
             "$ref": "common.schema.json#/$defs/dateTime",
-            "description": "When it started."
+            "description": "When the review started."
           },
           "completedAt": {
             "$ref": "common.schema.json#/$defs/dateTime",
-            "description": "When it was completed."
+            "description": "When it was completed. Must not be before startedAt."
           },
           "outcome": {
             "title": "Outcome",
-            "description": "approved, approved-with-conditions, corrections-required, denied or not-applicable.",
+            "description": "approved; approved-with-conditions; corrections-required (the applicant must revise and resubmit); denied; or not-applicable (the discipline found nothing to review).",
             "type": "string",
-            "enum": [
-              "approved",
-              "approved-with-conditions",
-              "corrections-required",
-              "denied",
-              "not-applicable"
-            ]
+            "enum": ["approved", "approved-with-conditions", "corrections-required", "denied", "not-applicable"]
           },
           "comments": {
             "title": "Comments",
@@ -434,32 +393,33 @@
               "description": "One review comment.",
               "type": "object",
               "additionalProperties": false,
-              "required": [
-                "text"
-              ],
+              "required": ["text"],
               "properties": {
                 "text": {
                   "title": "Text",
-                  "description": "The comment.",
+                  "description": "The comment, as written to the applicant.",
+                  "x-sensitivity": "free-text",
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 8000
                 },
                 "sheet": {
                   "title": "Sheet",
-                  "description": "The plan sheet the comment refers to, for example A2.1.",
+                  "description": "The plan sheet the comment refers to.",
                   "type": "string",
-                  "maxLength": 50
+                  "maxLength": 50,
+                  "examples": ["A2.1", "S1.1"]
                 },
                 "codeSection": {
                   "title": "Code section",
-                  "description": "The code section cited.",
+                  "description": "The code section cited, as the adopted code numbers it.",
                   "type": "string",
-                  "maxLength": 100
+                  "maxLength": 100,
+                  "examples": ["R602.7"]
                 },
                 "resolved": {
                   "title": "Resolved",
-                  "description": "Whether the comment has been resolved.",
+                  "description": "Whether the comment has been resolved in a later submission.",
                   "type": "boolean"
                 }
               }
@@ -470,64 +430,56 @@
     },
     "statutoryClock": {
       "title": "Statutory review clock",
-      "description": "The time limit the law or ordinance sets for deciding the application, and its state. Many jurisdictions set review deadlines; the rules vary, so the record states the basis and the counting rule it applied. startedAt and pauses are instants; days are counted in timeZone's calendar.",
+      "description": "The time limit a law, ordinance or policy sets for deciding the application, and the state of the clock. Many jurisdictions have such limits (and some deem a permit approved if the limit passes), with different rules for when the clock starts, which days count and what pauses it. The record states the basis and the counting it applied; it does not compute deadlines. startedAt and pauses are instants with a UTC offset; days are counted in timeZone's calendar, and dueOn is a date in that zone.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "basis",
-        "days",
-        "dayType"
-      ],
+      "required": ["basis", "days", "dayType"],
       "properties": {
         "basis": {
           "title": "Basis",
-          "description": "The law, ordinance or policy that sets the deadline, as cited locally.",
+          "description": "The law, ordinance or policy that sets the deadline, cited as the jurisdiction cites it.",
           "type": "string",
           "minLength": 1,
-          "maxLength": 300
+          "maxLength": 300,
+          "examples": ["Riverbend Municipal Code 15.04.120"]
         },
         "days": {
           "title": "Days allowed",
-          "description": "Days allowed for the decision.",
+          "description": "Days allowed for the decision under the basis.",
           "type": "integer",
           "minimum": 1
         },
         "dayType": {
           "title": "Day type",
-          "description": "calendar or business days.",
+          "description": "Whether the days are calendar or business days.",
           "type": "string",
-          "enum": [
-            "calendar",
-            "business"
-          ]
+          "enum": ["calendar", "business"]
         },
         "timeZone": {
           "title": "Time zone",
-          "description": "The IANA time zone whose calendar the jurisdiction counts days in, for example America/Chicago or Europe/London. dueOn is a date in this zone; give it whenever dueOn is given, so every system computes the same day.",
+          "description": "The IANA time zone whose calendar the jurisdiction counts days in. dueOn is a date in this zone, so every system computes the same day for a deadline near midnight. Required whenever dueOn is given.",
           "type": "string",
-          "pattern": "^(UTC|[A-Z][A-Za-z_]+(/[A-Za-z0-9_+-]+){1,2})$"
+          "pattern": "^(UTC|[A-Z][A-Za-z_]+(/[A-Za-z0-9_+-]+){1,2})$",
+          "examples": ["America/Los_Angeles", "America/Chicago", "Europe/London"]
         },
         "startedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When it started."
+          "description": "When the clock started (often when the application was deemed complete, not when it was submitted)."
         },
         "dueOn": {
           "$ref": "common.schema.json#/$defs/date",
-          "description": "The local date (in timeZone) by which the decision is due under the basis, after pauses."
+          "description": "The date, in timeZone, by which the decision is due under the basis, after pauses."
         },
         "pauses": {
           "title": "Pauses",
-          "description": "Periods when the clock stopped, for example while waiting for the applicant.",
+          "description": "Periods when the clock stopped, for example while waiting for the applicant to respond to corrections.",
           "type": "array",
           "items": {
             "title": "Pause",
             "description": "One period when the clock stopped.",
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "from",
-              "reason"
-            ],
+            "required": ["from", "reason"],
             "properties": {
               "from": {
                 "$ref": "common.schema.json#/$defs/dateTime",
@@ -535,57 +487,46 @@
               },
               "to": {
                 "$ref": "common.schema.json#/$defs/dateTime",
-                "description": "When the pause ended; leave out while it continues."
+                "description": "When the pause ended; leave out while it continues. Must not be before from."
               },
               "reason": {
                 "title": "Reason",
-                "description": "awaiting-applicant, fees-outstanding, applicant-request, third-party-review or other.",
+                "description": "awaiting-applicant (corrections or information requested); fees-outstanding; applicant-request (the applicant asked for more time); third-party-review (an outside agency's review that the basis allows to pause the clock); or other.",
                 "type": "string",
-                "enum": [
-                  "awaiting-applicant",
-                  "fees-outstanding",
-                  "applicant-request",
-                  "third-party-review",
-                  "other"
-                ]
+                "enum": ["awaiting-applicant", "fees-outstanding", "applicant-request", "third-party-review", "other"]
               }
             }
           }
         },
         "consequenceIfMissed": {
           "title": "Consequence if missed",
-          "description": "What the basis says happens when the deadline passes: deemed-approved, fee-refund, escalation, none or unspecified.",
+          "description": "What the basis says happens when the deadline passes: deemed-approved; fee-refund; escalation (to a supervisor or another body); none; or unspecified (the basis doesn't say, or nobody has checked).",
           "type": "string",
-          "enum": [
-            "deemed-approved",
-            "fee-refund",
-            "escalation",
-            "none",
-            "unspecified"
-          ]
+          "enum": ["deemed-approved", "fee-refund", "escalation", "none", "unspecified"]
         }
+      },
+      "dependentRequired": {
+        "dueOn": ["timeZone"]
       }
     },
     "inspections": {
       "title": "Inspections",
-      "description": "Inspections of the permitted work.",
+      "description": "Inspections of the permitted work, one entry per inspection visit (a failed inspection followed by a re-inspection is two entries).",
       "type": "array",
       "items": {
         "title": "Inspection",
         "description": "One inspection.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "type",
-          "result"
-        ],
+        "required": ["type", "result"],
         "properties": {
           "type": {
             "title": "Type",
-            "description": "The inspection, as the jurisdiction names it, for example Footing or Final Electrical.",
+            "description": "The inspection, as the jurisdiction names it on the permit card.",
             "type": "string",
             "minLength": 1,
-            "maxLength": 200
+            "maxLength": 200,
+            "examples": ["Footing", "Framing", "Final Electrical"]
           },
           "requestedFor": {
             "$ref": "common.schema.json#/$defs/date",
@@ -601,24 +542,18 @@
           },
           "result": {
             "title": "Result",
-            "description": "scheduled, passed, failed, partial, cancelled or no-access.",
+            "description": "scheduled (not yet done); passed; failed (correction and re-inspection needed); partial (part of the work approved); cancelled; or no-access (the inspector couldn't get to the work).",
             "type": "string",
-            "enum": [
-              "scheduled",
-              "passed",
-              "failed",
-              "partial",
-              "cancelled",
-              "no-access"
-            ]
+            "enum": ["scheduled", "passed", "failed", "partial", "cancelled", "no-access"]
           },
           "completedAt": {
             "$ref": "common.schema.json#/$defs/dateTime",
-            "description": "When it was completed."
+            "description": "When the inspection was done."
           },
           "notes": {
             "title": "Notes",
-            "description": "The inspector's notes.",
+            "description": "The inspector's notes and any corrections required.",
+            "x-sensitivity": "free-text",
             "type": "string",
             "maxLength": 8000
           }
@@ -627,46 +562,39 @@
     },
     "decision": {
       "title": "Decision",
-      "description": "The jurisdiction's decision on the application.",
+      "description": "The jurisdiction's decision on the application. An issued permit's number, conditions and expiry are here.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "outcome",
-        "decidedAt"
-      ],
+      "required": ["outcome", "decidedAt"],
       "properties": {
         "outcome": {
           "title": "Outcome",
-          "description": "issued, approved (approved but not yet issued, for example pending fees), denied, withdrawn, expired or revoked.",
+          "description": "issued (the permit is issued; permitNumber is required); approved (approved but not yet issued, for example while fees are unpaid); denied; withdrawn (by the applicant); expired (the application lapsed, or the issued permit expired before final); or revoked.",
           "type": "string",
-          "enum": [
-            "issued",
-            "approved",
-            "denied",
-            "withdrawn",
-            "expired",
-            "revoked"
-          ]
+          "enum": ["issued", "approved", "denied", "withdrawn", "expired", "revoked"]
         },
         "decidedAt": {
           "$ref": "common.schema.json#/$defs/dateTime",
-          "description": "When the decision was made."
+          "description": "When the decision was made. For an issued permit, BLDS IssuedDate is the date part in the jurisdiction's time zone."
         },
         "decidedBy": {
           "$ref": "common.schema.json#/$defs/personRef",
-          "description": "Who decided."
+          "description": "Who decided, usually by title (Building Official, Planning Director)."
         },
         "permitNumber": {
           "title": "Permit number",
-          "description": "The number of the issued permit. Required when the outcome is issued.",
+          "description": "The number of the issued permit (BLDS PermitNum). Required when the outcome is issued.",
           "type": "string",
-          "maxLength": 100
+          "maxLength": 100,
+          "examples": ["B26-04417"]
         },
         "conditions": {
           "title": "Conditions",
-          "description": "Conditions of approval.",
+          "description": "Conditions of approval, each as stated on the permit.",
           "type": "array",
           "items": {
+            "description": "One condition.",
+            "x-sensitivity": "free-text",
             "type": "string",
             "minLength": 1,
             "maxLength": 4000
@@ -674,17 +602,18 @@
         },
         "reasons": {
           "title": "Reasons",
-          "description": "Reasons for a denial or revocation.",
+          "description": "Reasons for a denial or revocation, as given to the applicant. Usually needed for an appeal.",
+          "x-sensitivity": "free-text",
           "type": "string",
           "maxLength": 8000
         },
         "expiresOn": {
           "$ref": "common.schema.json#/$defs/date",
-          "description": "When it expires."
+          "description": "When the permit (or the approval) expires if work doesn't start or progress (BLDS ExpiresDate). Must not be before the decision."
         },
         "appealDeadline": {
           "$ref": "common.schema.json#/$defs/date",
-          "description": "Last day to file an appeal."
+          "description": "The last day to file an appeal of the decision."
         }
       },
       "if": {
@@ -695,18 +624,16 @@
         }
       },
       "then": {
-        "required": [
-          "permitNumber"
-        ]
+        "required": ["permitNumber"]
       }
     },
     "status": {
       "$ref": "#/$defs/status",
-      "description": "draft, submitted, intake-review, incomplete, in-review, corrections-required, approved, issued, under-inspection, finaled, denied, withdrawn, expired or revoked."
+      "description": "Where the application is: draft (not yet submitted); submitted; intake-review (checking completeness); incomplete (the applicant must supply more); in-review (plan review); corrections-required; approved; issued; under-inspection; finaled (all inspections passed and the permit closed); denied; withdrawn; expired; or revoked. The docs map these to BLDS StatusCurrentMapped."
     },
     "statusHistory": {
       "title": "Status history",
-      "description": "Every status the record has had, oldest first, each one of the values of status.",
+      "description": "Every status the application has had, oldest first, ending at the current status (the validator checks both). BLDS CompletedDate is the date of the finaled entry.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/statusChange",
@@ -721,7 +648,7 @@
     },
     "attachments": {
       "title": "Attachments",
-      "description": "Files that belong to the application: plans, calculations, photos, letters.",
+      "description": "Files that belong to the application: plans, calculations, photographs, letters. Plans submitted to a public agency are often public records, but may still contain personal data or security-sensitive details; set classification accordingly.",
       "type": "array",
       "items": {
         "$ref": "common.schema.json#/$defs/attachment"
@@ -737,13 +664,13 @@
     },
     "extensions": {
       "$ref": "common.schema.json#/$defs/extensions",
-      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>."
+      "description": "Local fields this format doesn't define, namespaced as <namespace>:<field>, for example examplecity:councilDistrict."
     }
   },
   "$defs": {
     "status": {
       "title": "Status",
-      "description": "The status values of this format.",
+      "description": "The status values of this format, defined once so status and statusHistory use the same list. Where the application is: draft (not yet submitted); submitted; intake-review (checking completeness); incomplete (the applicant must supply more); in-review (plan review); corrections-required; approved; issued; under-inspection; finaled (all inspections passed and the permit closed); denied; withdrawn; expired; or revoked. The docs map these to BLDS StatusCurrentMapped.",
       "type": "string",
       "enum": [
         "draft",
@@ -764,39 +691,24 @@
     },
     "party": {
       "title": "Party",
-      "description": "A person or organization on the application, in a role. Give a person, an organization, or both (a contact at a firm).",
+      "description": "A person or organization on the application, in a role. Give a person, an organization, or both (a named contact at a firm). Names and mailing addresses of individuals, such as homeowners, are personal data even where permit records are public.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "role"
-      ],
+      "required": ["role"],
       "anyOf": [
         {
-          "required": [
-            "person"
-          ]
+          "required": ["person"]
         },
         {
-          "required": [
-            "organization"
-          ]
+          "required": ["organization"]
         }
       ],
       "properties": {
         "role": {
           "title": "Role",
-          "description": "owner, applicant, contractor, architect, engineer, agent, tenant or other.",
+          "description": "owner (the property owner); applicant (where the applicant has no other role); contractor; architect; engineer; agent (a permit expediter or other representative); tenant; or other.",
           "type": "string",
-          "enum": [
-            "owner",
-            "applicant",
-            "contractor",
-            "architect",
-            "engineer",
-            "agent",
-            "tenant",
-            "other"
-          ]
+          "enum": ["owner", "applicant", "contractor", "architect", "engineer", "agent", "tenant", "other"]
         },
         "person": {
           "$ref": "common.schema.json#/$defs/personRef",
@@ -804,43 +716,45 @@
         },
         "organization": {
           "$ref": "common.schema.json#/$defs/organizationRef",
-          "description": "The organization."
+          "description": "The organization (BLDS ContractorCompanyName, for a contractor)."
         },
         "mailingAddress": {
           "$ref": "common.schema.json#/$defs/address",
-          "description": "Where to send notices."
+          "description": "Where to send notices to the party, when it differs from the site.",
+          "x-sensitivity": "personal"
         },
         "license": {
           "title": "License",
-          "description": "A professional or contractor license held by the party.",
+          "description": "A professional or contractor license the party holds, which many jurisdictions verify before issuing a permit.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "number"
-          ],
+          "required": ["number"],
           "properties": {
             "number": {
               "title": "Number",
-              "description": "The license number.",
+              "description": "The license number (BLDS ContractorLicNum, for a contractor).",
               "type": "string",
               "minLength": 1,
-              "maxLength": 100
+              "maxLength": 100,
+              "examples": ["CCB-000000"]
             },
             "type": {
               "title": "Type",
-              "description": "The license class, for example General Building Contractor.",
+              "description": "The license class.",
               "type": "string",
-              "maxLength": 200
+              "maxLength": 200,
+              "examples": ["General Building Contractor", "Professional Engineer"]
             },
             "issuer": {
               "title": "Issuer",
-              "description": "The licensing board or agency.",
+              "description": "The licensing board or agency (BLDS ContractorStateLic records the licensing state).",
               "type": "string",
-              "maxLength": 200
+              "maxLength": 200,
+              "examples": ["State contractor board"]
             },
             "expiresOn": {
               "$ref": "common.schema.json#/$defs/date",
-              "description": "When it expires."
+              "description": "When the license expires."
             }
           }
         }

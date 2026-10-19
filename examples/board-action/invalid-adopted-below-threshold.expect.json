@@ -1,8 +1,10 @@
 {
   "reason": "One yes vote against two no votes is not a majority of votes cast, which the motion needed, so it can't be recorded as adopted.",
-  "expect": {
-    "source": "rule",
-    "keyword": "threshold-met",
-    "path": "/motions/0/result"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "threshold-met",
+      "path": "/motions/0/result"
+    }
+  ]
 }

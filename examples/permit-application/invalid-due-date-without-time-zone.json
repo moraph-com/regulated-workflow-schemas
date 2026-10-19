@@ -1,0 +1,236 @@
+{
+  "$schema": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/permit-application.schema.json",
+  "recordType": "permit-application",
+  "schemaVersion": "0.1.0",
+  "id": "BLD-2026-004417-ddwtz",
+  "createdAt": "2026-03-02T17:12:00Z",
+  "externalIds": [
+    {
+      "scheme": "riverbend-permits",
+      "value": "B26-04417"
+    }
+  ],
+  "jurisdiction": {
+    "country": "US",
+    "subdivision": "US-OR",
+    "locality": "City of Riverbend (fictional)",
+    "authority": "Development Services Department"
+  },
+  "permitType": {
+    "category": "building",
+    "subtype": "Residential Addition",
+    "workClass": "addition",
+    "residential": true
+  },
+  "description": "Single-story 420 sq ft rear addition with new bathroom; relocate water heater.",
+  "valuation": {
+    "currency": "USD",
+    "amount": "118000.00"
+  },
+  "applicant": {
+    "role": "owner",
+    "person": {
+      "name": "Sam Example",
+      "email": "sam@home.example",
+      "phone": "+15555550142"
+    },
+    "mailingAddress": {
+      "lines": ["118 Alder Way"],
+      "locality": "Riverbend",
+      "region": "OR",
+      "postalCode": "97000",
+      "country": "US"
+    }
+  },
+  "parties": [
+    {
+      "role": "contractor",
+      "organization": {
+        "name": "Northfork Builders LLC (fictional)"
+      },
+      "person": {
+        "name": "Drew Sample"
+      },
+      "license": {
+        "number": "CCB-000000",
+        "type": "Residential General Contractor",
+        "issuer": "State contractor board",
+        "expiresOn": "2027-08-31"
+      }
+    },
+    {
+      "role": "engineer",
+      "person": {
+        "name": "Lee Example, PE"
+      },
+      "license": {
+        "number": "PE-00000"
+      }
+    }
+  ],
+  "site": {
+    "parcelNumber": "12-34-56-000-0100",
+    "address": {
+      "lines": ["118 Alder Way"],
+      "locality": "Riverbend",
+      "region": "OR",
+      "postalCode": "97000",
+      "country": "US"
+    },
+    "location": {
+      "latitude": 44,
+      "longitude": -123
+    },
+    "zoning": "R-1",
+    "historicDistrict": false
+  },
+  "building": {
+    "occupancyGroup": "R-3",
+    "constructionType": "V-B",
+    "stories": 1,
+    "dwellingUnits": 0,
+    "area": {
+      "value": 420,
+      "unit": "sq-ft"
+    }
+  },
+  "submittedAt": "2026-03-02T17:12:00Z",
+  "documents": [
+    {
+      "attachmentId": "doc-plans",
+      "kind": "architectural-plans",
+      "revision": "2",
+      "submittedAt": "2026-04-06T15:00:00Z"
+    },
+    {
+      "attachmentId": "doc-calcs",
+      "kind": "structural-calculations",
+      "revision": "1",
+      "submittedAt": "2026-03-02T17:12:00Z"
+    }
+  ],
+  "fees": [
+    {
+      "code": "BP-RES",
+      "description": "Building permit fee",
+      "amount": {
+        "currency": "USD",
+        "amount": "1412.60"
+      },
+      "status": "paid",
+      "paidAt": "2026-04-21T16:00:00Z",
+      "receipt": "R-88213"
+    },
+    {
+      "code": "PR-RES",
+      "description": "Plan review fee",
+      "amount": {
+        "currency": "USD",
+        "amount": "918.19"
+      },
+      "status": "paid",
+      "paidAt": "2026-03-02T17:15:00Z",
+      "receipt": "R-86002"
+    }
+  ],
+  "reviews": [
+    {
+      "discipline": "zoning",
+      "cycle": 1,
+      "reviewer": {
+        "name": "Planner on duty"
+      },
+      "startedAt": "2026-03-04T16:00:00Z",
+      "completedAt": "2026-03-06T20:00:00Z",
+      "outcome": "approved"
+    },
+    {
+      "discipline": "structural",
+      "cycle": 1,
+      "reviewer": {
+        "name": "Quinn Example"
+      },
+      "startedAt": "2026-03-04T16:00:00Z",
+      "completedAt": "2026-03-20T20:00:00Z",
+      "outcome": "corrections-required",
+      "comments": [
+        {
+          "text": "Show header size and post-to-footing connection at the new rear opening.",
+          "sheet": "S1.1",
+          "codeSection": "R602.7",
+          "resolved": true
+        }
+      ]
+    },
+    {
+      "discipline": "structural",
+      "cycle": 2,
+      "reviewer": {
+        "name": "Quinn Example"
+      },
+      "startedAt": "2026-04-07T16:00:00Z",
+      "completedAt": "2026-04-14T20:00:00Z",
+      "outcome": "approved"
+    }
+  ],
+  "statutoryClock": {
+    "basis": "Riverbend Municipal Code 15.04.120 (fictional)",
+    "days": 120,
+    "dayType": "calendar",
+    "startedAt": "2026-03-02T17:12:00Z",
+    "dueOn": "2026-07-17",
+    "pauses": [
+      {
+        "from": "2026-03-20T20:00:00Z",
+        "to": "2026-04-06T15:00:00Z",
+        "reason": "awaiting-applicant"
+      }
+    ],
+    "consequenceIfMissed": "unspecified"
+  },
+  "inspections": [
+    {
+      "type": "Footing",
+      "requestedFor": "2026-05-12",
+      "scheduledFor": "2026-05-12T16:00:00Z",
+      "inspector": {
+        "name": "Inspector Example"
+      },
+      "result": "passed",
+      "completedAt": "2026-05-12T16:40:00Z"
+    },
+    {
+      "type": "Framing",
+      "requestedFor": "2026-06-09",
+      "result": "scheduled"
+    }
+  ],
+  "decision": {
+    "outcome": "issued",
+    "decidedAt": "2026-04-21T16:05:00Z",
+    "decidedBy": {
+      "name": "Building Official"
+    },
+    "permitNumber": "B26-04417",
+    "conditions": ["Call for inspections at each stage listed on the permit card."],
+    "expiresOn": "2027-04-21",
+    "appealDeadline": "2026-05-05"
+  },
+  "status": "under-inspection",
+  "attachments": [
+    {
+      "id": "doc-plans",
+      "title": "Architectural plans, revision 2",
+      "mediaType": "application/pdf",
+      "sha256": "f4282100b56efa34e5c7870445b86b4f3408a83f29cbcd92868dc8f03173a234",
+      "classification": "public"
+    },
+    {
+      "id": "doc-calcs",
+      "title": "Structural calculations",
+      "mediaType": "application/pdf",
+      "sha256": "542bd9e0d4801a55ef638020513e245f3edbe7db0e13ee0913ef06cb8e0bbad9",
+      "classification": "public"
+    }
+  ]
+}

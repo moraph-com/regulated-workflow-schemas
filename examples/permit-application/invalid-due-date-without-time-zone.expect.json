@@ -1,0 +1,10 @@
+{
+  "reason": "dueOn is a calendar date, so the record must say which time zone the jurisdiction counts days in.",
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "dependentRequired",
+      "path": "/statutoryClock"
+    }
+  ]
+}

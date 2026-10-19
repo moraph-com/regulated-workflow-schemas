@@ -1,8 +1,10 @@
 {
   "reason": "A recused member cannot vote on the item.",
-  "expect": {
-    "source": "rule",
-    "keyword": "recused-vote",
-    "path": "/motions/0/votes/3/vote"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "recused-vote",
+      "path": "/motions/0/votes/3/vote"
+    }
+  ]
 }

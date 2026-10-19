@@ -1,0 +1,10 @@
+{
+  "reason": "Hayden Example (m5) was absent from the meeting, so they could not have seconded the motion.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "present-to-act",
+      "path": "/motions/0/secondedBy"
+    }
+  ]
+}

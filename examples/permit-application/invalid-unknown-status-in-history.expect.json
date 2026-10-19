@@ -1,8 +1,10 @@
 {
   "reason": "Every status in statusHistory must be one of the format's status values; approved-pending isn't.",
-  "expect": {
-    "source": "schema",
-    "keyword": "enum",
-    "path": "/statusHistory/0/status"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "enum",
+      "path": "/statusHistory/0/status"
+    }
+  ]
 }

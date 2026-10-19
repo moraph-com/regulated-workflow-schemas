@@ -1,8 +1,10 @@
 {
   "reason": "Motions refer to members by id, and the id must exist.",
-  "expect": {
-    "source": "rule",
-    "keyword": "member-exists",
-    "path": "/motions/0/movedBy"
-  }
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "member-exists",
+      "path": "/motions/1/movedBy"
+    }
+  ]
 }

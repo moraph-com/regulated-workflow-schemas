@@ -1,0 +1,10 @@
+{
+  "reason": "The only main motion failed 1-2, so the item cannot be recorded as approved.",
+  "errors": [
+    {
+      "source": "rule",
+      "keyword": "outcome-matches-motions",
+      "path": "/outcome/result"
+    }
+  ]
+}

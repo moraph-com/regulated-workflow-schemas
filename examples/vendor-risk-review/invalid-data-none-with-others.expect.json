@@ -1,8 +1,10 @@
 {
   "reason": "none means the vendor has no access to the organization's data, so it can't be listed alongside other data categories.",
-  "expect": {
-    "source": "schema",
-    "keyword": "maxItems",
-    "path": "/dataCategories"
-  }
+  "errors": [
+    {
+      "source": "schema",
+      "keyword": "maxItems",
+      "path": "/dataCategories"
+    }
+  ]
 }

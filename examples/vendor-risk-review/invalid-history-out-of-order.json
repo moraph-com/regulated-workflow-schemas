@@ -1,0 +1,232 @@
+{
+  "$schema": "https://raw.githubusercontent.com/moraph-com/regulated-workflow-schemas/v0.1.0/schemas/vendor-risk-review.schema.json",
+  "recordType": "vendor-risk-review",
+  "schemaVersion": "0.1.0",
+  "id": "vrr-2026-0142-hooo",
+  "createdAt": "2026-02-02T14:10:00Z",
+  "updatedAt": "2026-03-18T19:45:00Z",
+  "reviewingOrganization": {
+    "name": "Example Community Bank (fictional)",
+    "country": "US"
+  },
+  "vendor": {
+    "name": "Ledgerline Payroll (fictional)",
+    "legalName": "Ledgerline Payroll Services, Inc. (fictional)",
+    "identifiers": [
+      {
+        "scheme": "EIN",
+        "value": "00-0000000"
+      }
+    ],
+    "country": "US",
+    "website": "https://ledgerline.example"
+  },
+  "relationshipOwner": {
+    "name": "Avery Example",
+    "title": "VP, Human Resources Operations",
+    "email": "avery.example@bank.example"
+  },
+  "lifecycleStage": "ongoing-monitoring",
+  "services": [
+    {
+      "name": "Payroll processing",
+      "description": "Calculates and pays wages for about 600 employees and files payroll taxes.",
+      "supportsCriticalActivity": true,
+      "startDate": "2023-07-01",
+      "contractRef": "MSA-2023-017",
+      "annualSpend": {
+        "currency": "USD",
+        "amount": "184000.00"
+      }
+    }
+  ],
+  "dataCategories": ["personal-data", "sensitive-personal-data"],
+  "access": {
+    "systemAccess": "none",
+    "hostsData": true,
+    "dataLocations": ["US"],
+    "subcontractors": [
+      {
+        "name": "Cloudwell Hosting (fictional)",
+        "service": "Infrastructure hosting",
+        "country": "US"
+      },
+      {
+        "name": "Printpost Mail Services (fictional)",
+        "service": "Paper pay statement printing",
+        "country": "US"
+      }
+    ]
+  },
+  "criticality": "high",
+  "criticalityRationale": "Employees must be paid on time; a missed payroll is a significant operational and reputational event.",
+  "inherentRisk": {
+    "level": "high",
+    "method": "Bank TPRM tiering model v3",
+    "rationale": "Holds Social Security numbers and bank account details for all employees."
+  },
+  "residualRisk": {
+    "level": "moderate",
+    "rationale": "Independent assurance report with no exceptions; encryption at rest; tested contingency plan."
+  },
+  "riskDomains": [
+    {
+      "domain": "information-security",
+      "inherent": "high",
+      "residual": "moderate",
+      "rationale": "Independent report covers security and availability; one finding open on access review evidence."
+    },
+    {
+      "domain": "business-continuity",
+      "inherent": "high",
+      "residual": "low",
+      "rationale": "Vendor ran a failover test in 2025; bank keeps an off-cycle manual payroll procedure."
+    },
+    {
+      "domain": "concentration",
+      "inherent": "moderate",
+      "residual": "moderate",
+      "rationale": "No second payroll provider under contract."
+    }
+  ],
+  "assessments": [
+    {
+      "id": "a1",
+      "type": "independent-report-review",
+      "evidenceName": "SOC 2 Type 2 report",
+      "periodStart": "2025-01-01",
+      "periodEnd": "2025-12-31",
+      "performedBy": {
+        "name": "Jordan Sample",
+        "title": "Third-Party Risk Analyst"
+      },
+      "completedAt": "2026-02-20T16:00:00Z",
+      "result": "satisfactory-with-findings",
+      "attachmentIds": ["att-soc2"]
+    },
+    {
+      "id": "a2",
+      "type": "financial-review",
+      "description": "Reviewed audited financial statements for going-concern indicators.",
+      "performedBy": {
+        "name": "Jordan Sample"
+      },
+      "completedAt": "2026-02-25T16:00:00Z",
+      "result": "satisfactory"
+    }
+  ],
+  "findings": [
+    {
+      "id": "f1",
+      "title": "Quarterly user access reviews not evidenced for Q3",
+      "description": "The report notes the control operated, but the vendor could not supply evidence of the Q3 review when asked.",
+      "domain": "information-security",
+      "severity": "medium",
+      "assessmentId": "a1",
+      "status": "in-remediation",
+      "remediation": {
+        "plan": "Vendor to provide Q1 2026 access review evidence and attest to the corrected process.",
+        "owner": {
+          "name": "Avery Example"
+        },
+        "dueDate": "2026-05-15"
+      }
+    },
+    {
+      "id": "f2",
+      "title": "No contractual right to audit subcontractors",
+      "domain": "compliance",
+      "severity": "low",
+      "status": "risk-accepted",
+      "riskAcceptance": {
+        "acceptedBy": {
+          "name": "Morgan Example",
+          "title": "Chief Risk Officer"
+        },
+        "acceptedAt": "2026-03-12T15:00:00Z",
+        "expiresOn": "2027-03-31",
+        "rationale": "Subcontractors are covered by the vendor's own assurance report; renegotiate at renewal."
+      }
+    }
+  ],
+  "reviewCadence": {
+    "frequency": "annual",
+    "lastReviewedOn": "2026-03-18",
+    "nextReviewDue": "2027-03-18",
+    "triggers": ["security incident notice", "change of control", "material change to the service"]
+  },
+  "decision": {
+    "outcome": "approved-with-conditions",
+    "conditions": ["Close finding f1 by 2026-05-15."],
+    "decidedAt": "2026-03-18T19:30:00Z"
+  },
+  "approvals": [
+    {
+      "approver": {
+        "name": "Avery Example"
+      },
+      "capacity": "Business owner",
+      "decision": "approved",
+      "at": "2026-03-17T21:00:00Z"
+    },
+    {
+      "approver": {
+        "name": "Morgan Example",
+        "title": "Chief Risk Officer"
+      },
+      "capacity": "Third-party risk committee chair",
+      "decision": "approved",
+      "at": "2026-03-18T19:30:00Z"
+    }
+  ],
+  "status": "approved",
+  "statusHistory": [
+    {
+      "status": "draft",
+      "at": "2026-02-02T14:10:00Z"
+    },
+    {
+      "status": "in-review",
+      "at": "2026-02-03T09:00:00Z"
+    },
+    {
+      "status": "pending-approval",
+      "at": "2026-02-01T09:00:00Z"
+    },
+    {
+      "status": "approved",
+      "at": "2026-03-18T19:45:00Z"
+    }
+  ],
+  "attachments": [
+    {
+      "id": "att-soc2",
+      "title": "Ledgerline SOC 2 Type 2 report, 2025",
+      "mediaType": "application/pdf",
+      "sha256": "36cf40ebacf614ec3dc6387b0b0a95c9b595f6ba4adefae20c2178deb6a17fda",
+      "byteSize": 2481334,
+      "classification": "confidential",
+      "addedAt": "2026-02-18T12:00:00Z"
+    }
+  ],
+  "auditTrail": [
+    {
+      "at": "2026-02-02T14:10:00Z",
+      "actor": {
+        "name": "Jordan Sample"
+      },
+      "action": "created",
+      "system": "GRC platform"
+    },
+    {
+      "at": "2026-03-18T19:45:00Z",
+      "actor": {
+        "name": "Morgan Example"
+      },
+      "action": "approved"
+    }
+  ],
+  "extensions": {
+    "examplebank:costCenter": "HR-210"
+  }
+}

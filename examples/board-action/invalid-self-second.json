@@ -74,10 +74,7 @@
     "sponsor": {
       "name": "Public Works Director"
     },
-    "attachmentIds": [
-      "staff-report",
-      "bid-tab"
-    ],
+    "attachmentIds": ["staff-report", "bid-tab"],
     "publicComments": [
       {
         "speaker": "Resident",
