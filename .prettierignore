@@ -1,0 +1,8 @@
+# Generated, and checked against the schemas by npm run types:check and npm run docs:check instead.
+dist/
+src/generated/
+types/*.d.ts
+docs/
+package-lock.json
+# Verbatim text of the Contributor Covenant 2.1.
+CODE_OF_CONDUCT.md

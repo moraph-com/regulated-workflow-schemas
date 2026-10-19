@@ -1,7 +1,7 @@
 {
   "name": "@moraph/regulated-workflow-schemas",
   "version": "0.1.0",
-  "description": "Open JSON Schema record formats for regulated workflows: vendor risk reviews, patient safety incidents, permit applications and board actions. With a validator and TypeScript types.",
+  "description": "Open JSON Schema (2020-12) record formats for regulated workflows: vendor risk reviews, patient safety event reports, permit applications and board actions. With a validator that runs anywhere JavaScript does, cross-field rules, a CLI and TypeScript types.",
   "license": "Apache-2.0",
   "author": "Moraph (https://www.moraph.com)",
   "homepage": "https://github.com/moraph-com/regulated-workflow-schemas#readme",
@@ -12,14 +12,20 @@
   "bugs": "https://github.com/moraph-com/regulated-workflow-schemas/issues",
   "keywords": [
     "json-schema",
+    "json-schema-2020-12",
     "third-party-risk",
     "vendor-risk",
+    "tprm",
     "patient-safety",
+    "incident-reporting",
     "permitting",
+    "building-permits",
     "govtech",
     "board-governance",
+    "meeting-minutes",
     "open-data",
-    "regtech"
+    "regtech",
+    "validator"
   ],
   "type": "module",
   "engines": {
@@ -31,6 +37,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./ajv": {
+      "types": "./dist/ajv.d.ts",
+      "default": "./dist/ajv.js"
     },
     "./types": {
       "types": "./types/index.d.ts"
@@ -45,27 +55,42 @@
     "dist",
     "schemas",
     "types",
-    "docs"
+    "docs",
+    "examples",
+    "NOTICE",
+    "CHANGELOG.md",
+    "!dist/**/*.map"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "prepare": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p types/tsconfig.json",
+    "generate": "node scripts/build-generated.mjs",
+    "build": "npm run generate && tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "typecheck": "npm run generate && tsc -p tsconfig.json --noEmit && tsc -p types/tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "npm run build && node --test test/*.test.mjs",
     "types": "node scripts/build-types.mjs",
     "types:check": "node scripts/build-types.mjs --check",
-    "docs": "node scripts/build-docs.mjs",
+    "docs": "npm run build && node scripts/build-docs.mjs",
     "docs:check": "node scripts/build-docs.mjs --check",
     "validate:examples": "npm run build && node dist/cli.js examples/*/valid-*.json",
-    "prepublishOnly": "npm run typecheck && npm test && npm run types:check && npm run docs:check"
+    "prepublishOnly": "npm run lint && npm run format:check && npm run typecheck && npm test && npm run types:check && npm run docs:check"
   },
   "dependencies": {
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@hyperjump/json-schema": "^1.18.0",
     "@types/node": "^22.15.0",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
     "json-schema-to-typescript": "^15.0.4",
-    "typescript": "~5.9.3"
-  }
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.0"
+  },
+  "sideEffects": false
 }
