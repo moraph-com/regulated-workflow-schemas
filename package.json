@@ -89,7 +89,7 @@
     "globals": "^17.13.0",
     "json-schema-to-typescript": "^16.0.0",
     "prettier": "^3.9.10",
-    "typescript": "~5.9.3",
+    "typescript": "~7.0.2",
     "typescript-eslint": "^8.72.0"
   },
   "sideEffects": false
