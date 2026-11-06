@@ -1,6 +1,6 @@
 name: Report a bug
 description: The validator, the command line, the types or the docs do something wrong.
-labels: [bug]
+type: Bug
 body:
   - type: markdown
     attributes:
