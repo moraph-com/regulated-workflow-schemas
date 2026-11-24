@@ -6,7 +6,7 @@ Open JSON Schema record formats for regulated workflows: vendor risk reviews, pa
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![JSON Schema 2020-12](https://img.shields.io/badge/JSON%20Schema-2020--12-informational.svg)](https://json-schema.org/draft/2020-12)
 
-> Part of the Moraph portfolio · Issues: [moraph-com/regulated-workflow-schemas](https://github.com/moraph-com/regulated-workflow-schemas/issues) · Initiative: [moraph-com/mcp-worker-kit#6](https://github.com/moraph-com/mcp-worker-kit/issues/6)
+> Part of the Moraph portfolio · Issues: [moraph-com/regulated-workflow-schemas](https://github.com/moraph-com/regulated-workflow-schemas/issues) · Initiative: [moraph-com/mcp-worker-kit#25](https://github.com/moraph-com/mcp-worker-kit/issues/25)
 
 ## Overview
 
@@ -152,7 +152,7 @@ Nothing is deployed: this repository ships a package and schema files.
 
 ## Project management
 
-Work is tracked in this repository's [issues](https://github.com/moraph-com/regulated-workflow-schemas/issues), under the initiative [moraph-com/mcp-worker-kit#6](https://github.com/moraph-com/mcp-worker-kit/issues/6).
+Work is tracked in this repository's [issues](https://github.com/moraph-com/regulated-workflow-schemas/issues), under the initiative [moraph-com/mcp-worker-kit#25](https://github.com/moraph-com/mcp-worker-kit/issues/25).
 
 - **Hierarchy:** Initiative > Epic > Feature / Task / Bug, built with sub-issues and GitHub issue types (no type labels). This repo's Epic: [Publish to npm and chart the path to 1.0](https://github.com/moraph-com/regulated-workflow-schemas/issues/8).
 - **Issue forms:** [Bug report](https://github.com/moraph-com/regulated-workflow-schemas/issues/new?template=bug-report.yml) and [Propose a field or schema](https://github.com/moraph-com/regulated-workflow-schemas/issues/new?template=propose-field-or-schema.yml). How proposals are decided is in [GOVERNANCE.md](GOVERNANCE.md).
@@ -321,8 +321,6 @@ Domain corrections are especially welcome: if a description gets your field wron
 ## Related repositories
 
 - [moraph-com/mcp-worker-kit](https://github.com/moraph-com/mcp-worker-kit) — remote MCP server on Cloudflare Workers with OAuth 2.1, consent tiers and an audit trail.
-- [moraph-com/moraph-internal-experts](https://github.com/moraph-com/moraph-internal-experts) (private) — build system for Moraph's model briefings.
-- [moraph-com/adv-research](https://github.com/moraph-com/adv-research) (private) — D1 research database built from public regulatory filings.
 
 ## Security
 
