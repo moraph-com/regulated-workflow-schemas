@@ -5,6 +5,10 @@ tagged `vX.Y.Z`.
 
 ## Unreleased
 
+- Security: `detectRecordType()` and `validate()` no longer slow down on a long, crafted `$schema` (CodeQL
+  js/polynomial-redos). A `$schema` is matched on its last path segment before any `#` fragment.
+- Docs build: table cells escape backslashes before pipes (CodeQL js/incomplete-sanitization).
+
 ## 0.1.0 (2026-10-19)
 
 First public draft.

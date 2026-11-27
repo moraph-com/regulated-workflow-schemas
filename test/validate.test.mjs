@@ -24,6 +24,20 @@ test("detectRecordType reads $schema first, then recordType", () => {
   for (const x of [null, [], "x", {}, { recordType: "unknown" }]) assert.equal(detectRecordType(x), null);
 });
 
+test("detectRecordType handles $schema fragments, odd names and long crafted input quickly", () => {
+  const base = "https://example.org/schemas/";
+  assert.equal(detectRecordType({ $schema: `${base}board-action.schema.json#/$defs/x` }), "board-action");
+  assert.equal(detectRecordType({ $schema: "./board-action.schema.json" }), "board-action");
+  for (const s of ["board-action.schema.json", `${base}Board-Action.schema.json`, `${base}board-action.schema.json/x`])
+    assert.equal(detectRecordType({ $schema: s }), null);
+  // CodeQL js/polynomial-redos: the old regular expression took seconds on this input (64 s at 50,000 repeats).
+  const crafted = "/-.schema.json#".repeat(10_000) + "\nx";
+  const t0 = performance.now();
+  assert.equal(detectRecordType({ $schema: crafted }), null);
+  assert.equal(detectRecordType({ $schema: crafted.replace(/^/, "x/board-action.schema.json#") }), "board-action");
+  assert.ok(performance.now() - t0 < 100, "a long $schema is classified in well under 100 ms");
+});
+
 test("validate explains a record it can't classify instead of throwing", () => {
   const r = validate({ hello: "world" });
   assert.equal(r.valid, false);
