@@ -3,6 +3,7 @@
 // (it reads the rule descriptions from dist/).
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { RULE_DOCS } from "../dist/rules.js";
+import { esc } from "./md-escape.mjs";
 
 const RECORD_TYPES = ["vendor-risk-review", "patient-safety-incident", "permit-application", "board-action"];
 const check = process.argv.includes("--check");
@@ -111,12 +112,6 @@ const anchor = (s) =>
     .toLowerCase()
     .replace(/[^a-z0-9 -]/g, "")
     .replace(/ /g, "-");
-const esc = (s) =>
-  String(s ?? "")
-    .replace(/\|/g, "\\|")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\n/g, " ");
 
 function resolve(node, local) {
   if (!node.$ref) return { node, ref: null };

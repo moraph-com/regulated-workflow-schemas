@@ -95,11 +95,27 @@ export function detectRecordType(record: unknown): RecordType | null {
 function declared(record: unknown): { fromSchema: RecordType | null; fromRecordType: RecordType | null } {
   if (!isObject(record)) return { fromSchema: null, fromRecordType: null };
   // Match on the file name only, so a record that names any release of the schema (or a local copy of it) is detected.
-  const m = typeof record.$schema === "string" ? /\/([a-z-]+)\.schema\.json(?:#.*)?$/.exec(record.$schema) : null;
+  const name = typeof record.$schema === "string" ? schemaFileName(record.$schema) : null;
   return {
-    fromSchema: m && isRecordType(m[1]) ? m[1] : null,
+    fromSchema: name !== null && isRecordType(name) ? name : null,
     fromRecordType: isRecordType(record.recordType) ? record.recordType : null,
   };
+}
+
+/**
+ * The `<name>` in a `$schema` URI's last path segment `<name>.schema.json` (ignoring any `#` fragment), or null.
+ * Plain string operations rather than a regular expression, so a long, crafted `$schema` can't make it run slowly.
+ */
+function schemaFileName(uri: string): string | null {
+  const hash = uri.indexOf("#");
+  const path = hash === -1 ? uri : uri.slice(0, hash);
+  const slash = path.lastIndexOf("/");
+  if (slash === -1) return null;
+  const file = path.slice(slash + 1);
+  const suffix = ".schema.json";
+  if (!file.endsWith(suffix)) return null;
+  const name = file.slice(0, -suffix.length);
+  return /^[a-z-]+$/.test(name) ? name : null;
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === "object" && !Array.isArray(v);
